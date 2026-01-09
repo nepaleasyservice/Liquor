@@ -24,7 +24,7 @@ export default function EnjoySpirits() {
   useEffect(() => {
     const fetchEnjoyTips = async () => {
       try {
-        const res = await api.get("/get/enjoy");
+        const res = await api.get("/enjoy/get");
         console.log(res)
         setEnjoyTips(res.data || []);
       } catch (error) {
