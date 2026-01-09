@@ -3,13 +3,22 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { verifyEmailVerifyToken } from "../middleware/authMiddleware.js";
 
+// const adminCookieOptions = {
+//   httpOnly: true,
+//   secure: process.env.NODE_ENV === "production",
+//   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//   path: "/",
+//   maxAge: 7 * 24 * 60 * 60 * 1000,
+// };
+
 const adminCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  path: "/",
+  secure: true,          // ✅ MUST be true on https in production
+  sameSite: "none",      // ✅ MUST be "none" for cross-site cookies
+  path: "/",             // ✅ important
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
+
 
 export const adminLogin = async (req, res) => {
   try {
