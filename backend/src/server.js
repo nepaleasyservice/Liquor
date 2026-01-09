@@ -4,7 +4,7 @@ import app from "./app.js";
 
 const PORT = process.env.PORT || 5000;
 
-mongoose
+await mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
