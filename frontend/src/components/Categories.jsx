@@ -52,7 +52,7 @@ export default function EnjoySpirits() {
 
         {/* Tips Section */}
         {enjoyTips?.map((tip, i) => {
-          const imgSrc = resolveImgSrc(tip?.photo, BASE_URL);
+          const imgSrc = resolveImgSrc(tip?.photo?.url, BASE_URL);
 
           return (
             <div
