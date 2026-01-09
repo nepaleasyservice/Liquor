@@ -25,7 +25,6 @@ export default function EnjoySpirits() {
     const fetchEnjoyTips = async () => {
       try {
         const res = await api.get("/enjoy/get");
-        console.log(res)
         setEnjoyTips(res.data || []);
       } catch (error) {
         console.error("Error fetching enjoy tips:", error);
