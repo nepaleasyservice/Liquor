@@ -12,6 +12,24 @@ function getEnjoyImage(enjoy) {
   return "";
 }
 
+// ✅ NEW: normalize API responses so state always gets the real enjoy object
+function normalizeEnjoy(payload) {
+  if (!payload) return payload;
+
+  // examples your backend can return:
+  // { success:true, enjoyData: [ {...} ] }  (your createEnjoy uses Enjoy.find(enjoy._id) => array)
+  // { success:true, enjoy: {...} }
+  // {...enjoy}
+  if (payload.enjoy) return payload.enjoy;
+
+  if (payload.enjoyData) {
+    return Array.isArray(payload.enjoyData) ? payload.enjoyData[0] : payload.enjoyData;
+  }
+
+  // fallback
+  return payload;
+}
+
 export default function Enjoy() {
   const [enjoys, setEnjoys] = useState([]);
   const [name, setName] = useState("");
@@ -72,8 +90,10 @@ export default function Enjoy() {
 
       const response = await api.put(`/enjoy/update/${id}`, formData);
 
-      // ✅ keep your original logic
-      setEnjoys((prev) => prev.map((en) => (en._id === id ? response.data : en)));
+      // ✅ FIX: normalize updated enjoy object
+      const updatedEnjoy = normalizeEnjoy(response.data);
+
+      setEnjoys((prev) => prev.map((en) => (en._id === id ? updatedEnjoy : en)));
       closeModal();
     } catch (error) {
       console.error("Error editing enjoy:", error);
@@ -93,7 +113,11 @@ export default function Enjoy() {
       formData.append("description", description);
       formData.append("photo", image);
 
-      const newEnjoy = await handleEnjoyCreate(formData);
+      const payload = await handleEnjoyCreate(formData);
+
+      // ✅ FIX: normalize created enjoy object
+      const newEnjoy = normalizeEnjoy(payload);
+
       setEnjoys((prev) => [newEnjoy, ...prev]);
 
       setShowModal(false);
@@ -279,7 +303,6 @@ export default function Enjoy() {
           setImage={setImage}
           onClose={closeModal}
           onSubmit={handleCreateSubmit}
-          // ✅ pass saving info (CreateModel should use it to disable submit button)
           saving={creating}
           saveText={creating ? "Saving..." : "Save"}
         />
@@ -289,7 +312,6 @@ export default function Enjoy() {
         <DeleteModal
           onClose={closeModal}
           onConfirm={handleDelete}
-          // ✅ pass saving info (DeleteModal should disable confirm button)
           saving={deleting}
           confirmText={deleting ? "Deleting..." : "Delete"}
         />
@@ -300,7 +322,6 @@ export default function Enjoy() {
           enjoy={selectedEnjoy}
           onClose={closeModal}
           onSubmit={handleEdit}
-          // ✅ pass saving info (EditModel should disable submit button)
           saving={editing}
           saveText={editing ? "Saving..." : "Save Changes"}
         />
