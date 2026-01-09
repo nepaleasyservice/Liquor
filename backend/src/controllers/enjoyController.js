@@ -1,23 +1,22 @@
 import Enjoy, { Photo } from "../models/Enjoy.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import fs from "fs";
 
 export const createEnjoy = async (req, res) => {
-  const { name, description } = req.body;
-  if (!name || !description) return res.status(400).json({ success: false, message: "name and discription required" });
-  if (!req.file) {
-    return res.status(400).json({ message: "Image file is required" });
-  }
   try {
-    const localFilePath = req.file.path;
-    const cloudinaryResponse = await uploadOnCloudinary(localFilePath);
+    const { name, description } = req.body;
 
-    if (!cloudinaryResponse) {
-      return res.status(500).json({
-        success: false,
-        message: "Cloudinary upload failed"
-      });
+    if (!name || !description) {
+      return res
+        .status(400)
+        .json({ success: false, message: "name and discription required" });
     }
+
+    // ✅ Vercel: multer memoryStorage => req.file.buffer
+    if (!req.file?.buffer) {
+      return res.status(400).json({ success: false, message: "Image file is required" });
+    }
+
+    const cloudinaryResponse = await uploadOnCloudinary(req.file.buffer);
 
     const url = cloudinaryResponse?.secure_url || cloudinaryResponse?.url;
     const publicId = cloudinaryResponse?.public_id;
@@ -29,24 +28,21 @@ export const createEnjoy = async (req, res) => {
       });
     }
 
-    fs.unlinkSync(localFilePath);
-
     const photo = await Photo.create({ url, publicId });
 
-    const enjoy = await new Enjoy({
-      name: req.body.name,
-      description: req.body.description,
+    const enjoy = await Enjoy.create({
+      name,
+      description,
       photo: photo._id,
     });
 
-    await enjoy.save();
-
-    const enjoyData = await Enjoy.find(enjoy._id)
+    const enjoyData = await Enjoy.findById(enjoy._id)
       .select("-__v")
-      .populate("photo")
+      .populate("photo");
 
     return res.status(201).json({ success: true, enjoyData });
   } catch (error) {
+    console.error("createEnjoy error:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -54,46 +50,57 @@ export const createEnjoy = async (req, res) => {
 export const getEnjoys = async (req, res) => {
   try {
     const enjoys = await Enjoy.find()
-      .select("-__V")
+      .select("-__v") // fixed __V -> __v
       .populate("photo");
-    res.json(enjoys);
+
+    return res.json(enjoys);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const DeleteEnjoy = async (req, res) => {
   try {
-    console.log(req);
     const deletedEnjoy = await Enjoy.findByIdAndDelete(req.params.id);
+
     if (!deletedEnjoy) {
-      return res.status(404).json({ message: "Enjoy item not found", "deleted": deletedEnjoy });
+      return res.status(404).json({
+        message: "Enjoy item not found",
+        deleted: deletedEnjoy,
+      });
     }
-    res.status(200).json({
+
+    return res.status(200).json({
       message: "Enjoy item deleted successfully",
       id: deletedEnjoy._id,
       name: deletedEnjoy.name,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const editEnjoy = async (req, res) => {
-  let localFilePath = null;
-
   try {
     const { id } = req.params;
     const { name, description } = req.body;
 
-    if (!id) return res.status(400).json({ success: false, message: "something went wrong" });
-    if (!name || !description) return res.status(400).json({ success: false, message: "name and description required" });
-    if (!req.file?.path) return res.status(400).json({ success: false, message: "Image file is required" });
+    if (!id) {
+      return res.status(400).json({ success: false, message: "something went wrong" });
+    }
+    if (!name || !description) {
+      return res.status(400).json({ success: false, message: "name and description required" });
+    }
 
-    localFilePath = req.file.path;
+    // ✅ Vercel: memory storage
+    if (!req.file?.buffer) {
+      return res.status(400).json({ success: false, message: "Image file is required" });
+    }
 
     const currentEnjoy = await Enjoy.findById(id);
-    if (!currentEnjoy) return res.status(404).json({ success: false, message: "Enjoy not found" });
+    if (!currentEnjoy) {
+      return res.status(404).json({ success: false, message: "Enjoy not found" });
+    }
 
     let existingPublicId = null;
     let existingPhotoDoc = null;
@@ -103,7 +110,8 @@ export const editEnjoy = async (req, res) => {
       existingPublicId = existingPhotoDoc?.publicId || null;
     }
 
-    const cloudinaryResponse = await uploadOnCloudinary(localFilePath, existingPublicId);
+    // ✅ overwrite old image if publicId exists
+    const cloudinaryResponse = await uploadOnCloudinary(req.file.buffer, existingPublicId);
 
     const url = cloudinaryResponse?.secure_url || cloudinaryResponse?.url;
     const publicId = cloudinaryResponse?.public_id;
@@ -133,10 +141,7 @@ export const editEnjoy = async (req, res) => {
 
     return res.status(200).json({ success: true, enjoy });
   } catch (error) {
+    console.error("editEnjoy error:", error);
     return res.status(500).json({ success: false, message: error.message });
-  } finally {
-    if (localFilePath) {
-      try { fs.unlinkSync(localFilePath); } catch { }
-    }
   }
 };
