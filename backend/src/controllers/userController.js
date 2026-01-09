@@ -7,12 +7,21 @@ import {
   verifyPasswordVerifyToken,
 } from "../middleware/authMiddleware.js";
 
+// const cookieOptions = {
+//   httpOnly: true,
+//   secure: process.env.NODE_ENV === "production",
+//   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//   maxAge: 7 * 24 * 60 * 60 * 1000,
+// };
+
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  secure: true,          // ✅ MUST be true on https in production
+  sameSite: "none",      // ✅ MUST be "none" for cross-site cookies
+  path: "/",             // ✅ important
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
+
 
 export const signup = async (req, res) => {
   try {
