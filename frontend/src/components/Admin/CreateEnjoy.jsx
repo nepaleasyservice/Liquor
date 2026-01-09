@@ -1,4 +1,4 @@
-function CreateModel({
+export default function CreateEnjoy({
   name,
   setName,
   description,
@@ -6,78 +6,109 @@ function CreateModel({
   setImage,
   onClose,
   onSubmit,
+  saving,
+  saveText = "Save",
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
+      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-[0_0_30px_rgba(0,0,0,0.55)]">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Create Enjoy</h2>
 
-      {/* Modal Content */}
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl">
-        <div className="border-b border-white/10 px-6 py-4">
-          <h2 className="text-xl font-bold text-white">Add New Item</h2>
+          {/* ✅ Disable X while saving */}
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className={`rounded-lg px-3 py-1 text-sm transition ${
+              saving ? "text-white/25 cursor-not-allowed" : "text-white/70 hover:text-white"
+            }`}
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-6 space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Name</label>
+        <form onSubmit={onSubmit} className="mt-5 space-y-4">
+          <div>
+            <label className="text-sm text-white/70">Name</label>
             <input
-              type="text"
-              placeholder="Enter name"
-              className="w-full rounded-lg border border-white/10 bg-black/50 p-3 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              required
+              disabled={saving}
+              className={`mt-2 w-full rounded-xl border bg-white/5 px-4 py-2 outline-none transition
+                ${saving ? "border-white/5 text-white/50 cursor-not-allowed" : "border-white/10 text-white"}
+              `}
+              placeholder="Enter name"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">
-              Description
-            </label>
+          <div>
+            <label className="text-sm text-white/70">Description</label>
             <textarea
-              placeholder="Enter description"
-              rows="3"
-              className="w-full rounded-lg border border-white/10 bg-black/50 p-3 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
+              disabled={saving}
+              rows={4}
+              className={`mt-2 w-full rounded-xl border bg-white/5 px-4 py-2 outline-none transition
+                ${saving ? "border-white/5 text-white/50 cursor-not-allowed" : "border-white/10 text-white"}
+              `}
+              placeholder="Enter description"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Image</label>
+          <div>
+            <label className="text-sm text-white/70">Photo</label>
             <input
               type="file"
               accept="image/*"
-              className="w-full rounded-lg border border-white/10 bg-black/50 p-2 text-sm text-gray-400 file:mr-4 file:rounded-md file:border-0 file:bg-white/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-white/20"
-              onChange={(e) => setImage(e.target.files[0])}
-              required
+              disabled={saving}
+              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+              className={`mt-2 block w-full text-sm transition ${
+                saving ? "text-white/35 cursor-not-allowed" : "text-white/70"
+              }`}
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="mt-6 flex items-center justify-end gap-2">
+            {/* ✅ Cancel disabled while saving */}
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
+              disabled={saving}
+              className={`rounded-xl border px-4 py-2 text-sm transition
+                ${
+                  saving
+                    ? "border-white/5 bg-white/[0.03] text-white/30 cursor-not-allowed"
+                    : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                }`}
             >
               Cancel
             </button>
+
+            {/* ✅ Save disabled while saving + faint */}
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all"
+              disabled={saving}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition
+                ${
+                  saving
+                    ? "bg-white/20 text-black/50 cursor-not-allowed"
+                    : "bg-white text-black hover:bg-white/90"
+                }`}
             >
-              Save Item
+              {saveText}
             </button>
           </div>
+
+          {saving && (
+            <div className="flex items-center gap-2 text-xs text-white/50">
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-white/25 border-t-white/80" />
+              Uploading & saving…
+            </div>
+          )}
         </form>
       </div>
     </div>
   );
 }
-
-export default CreateModel;
