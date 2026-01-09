@@ -329,6 +329,8 @@ export function AdminProvider({ children }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      console.log(res)
+
       const created = res?.data?.product ?? res?.data?.data?.product ?? res?.data;
       dispatch({ type: "ADD_PRODUCT", payload: created });
 
