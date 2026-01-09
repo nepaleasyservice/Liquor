@@ -17,6 +17,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 // khalti integration imports
 import khaltiRoutes from "./routes/khalti.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import dbConnect from "./db/dbConnect.js";
 
 const app = express();
 
@@ -45,6 +46,9 @@ app.use(emailMiddleware);
 app.get("/", (req,res) => {
   res.send("Api working!");
 })
+
+    await dbConnect(); // ✅ wait for DB first
+
 app.use("/api/auth", authRoutes);
 
 // admin route
