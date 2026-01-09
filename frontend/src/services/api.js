@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL + "/api",
-  withCredentials: true,
+  baseURL: "/api",          // ✅ same-origin (frontend domain)
+  withCredentials: true,    // ✅ required for cookies
 });
 
 api.interceptors.response.use(
