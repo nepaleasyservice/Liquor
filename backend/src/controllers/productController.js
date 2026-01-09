@@ -4,7 +4,6 @@ import Category from "../models/Products/Category.js";
 import SubCategory from "../models/Products/SubCategory.js";
 import Brand from "../models/Products/Brand.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import fs from "fs";
 import { buildPaginationMeta, getPagination } from "../utils/paginate.js";
 
 export const getProducts = async (req, res) => {
@@ -33,11 +32,14 @@ export const getProducts = async (req, res) => {
         .lean(),
     ]);
 
-    return res.status(200).json({ data: products, pagination: buildPaginationMeta({ total, page, limit }) });
+    return res.status(200).json({
+      data: products,
+      pagination: buildPaginationMeta({ total, page, limit }),
+    });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
-}
+};
 
 export const getParticularProduct = async (req, res) => {
   try {
@@ -55,19 +57,17 @@ export const getParticularProduct = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}
+};
 
 export const createProduct = async (req, res) => {
-  let localFilePath = null;
   try {
-    if (!req.file?.path) {
+    // ✅ Vercel-safe: multer memoryStorage => req.file.buffer
+    if (!req.file?.buffer) {
       return res.status(400).json({
         success: false,
         message: "Image file is required",
       });
     }
-
-    localFilePath = req.file.path;
 
     const {
       name,
@@ -79,7 +79,7 @@ export const createProduct = async (req, res) => {
       description = "",
       price,
       isActive = true,
-      isFeatured = false
+      isFeatured = false,
     } = req.body;
 
     if (!name || !categoryId || !subCategoryId || !brandId || !abv || !volumeMl || !price) {
@@ -121,10 +121,11 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    const cloudinaryResponse = await uploadOnCloudinary(localFilePath);
+    // ✅ Upload image buffer to Cloudinary
+    const cloud = await uploadOnCloudinary(req.file.buffer);
 
-    const url = cloudinaryResponse?.secure_url || cloudinaryResponse?.url;
-    const publicId = cloudinaryResponse?.public_id;
+    const url = cloud?.secure_url || cloud?.url;
+    const publicId = cloud?.public_id;
 
     if (!url || !publicId) {
       return res.status(500).json({
@@ -145,11 +146,11 @@ export const createProduct = async (req, res) => {
       description,
       price: normalizedPrice,
       image: image._id,
-      isFeatured: isFeatured,
-      isActive: isActive,
+      isFeatured,
+      isActive,
     });
 
-    const product = await Product.findById(created._id).populate("image")
+    const product = await Product.findById(created._id).populate("image");
 
     return res.status(201).json({
       success: true,
@@ -161,12 +162,6 @@ export const createProduct = async (req, res) => {
       success: false,
       message: error.message || "Server error",
     });
-  } finally {
-    if (localFilePath) {
-      try {
-        await fs.unlinkSync(localFilePath);
-      } catch { }
-    }
   }
 };
 
@@ -180,20 +175,16 @@ export const publishProduct = async (req, res) => {
       .populate("brand", "name country")
       .populate("image");
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
     product.isActive = !product.isActive;
     await product.save();
 
-    res.json({
-      success: true,
-      product,
-    });
+    res.json({ success: true, product });
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(400).json({ message: err.message });
   }
-}
+};
 
 export const featureProduct = async (req, res) => {
   const { id } = req.params;
@@ -205,24 +196,18 @@ export const featureProduct = async (req, res) => {
       .populate("brand", "name country")
       .populate("image");
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
     product.isFeatured = !product.isFeatured;
     await product.save();
 
-    res.json({
-      success: true,
-      product,
-    });
+    res.json({ success: true, product });
   } catch (err) {
-    res.status(400).json({ message: err.message })
+    res.status(400).json({ message: err.message });
   }
-}
+};
 
 export const editProduct = async (req, res) => {
-  let localFilePath = null;
-
   try {
     const { id } = req.params;
 
@@ -239,13 +224,13 @@ export const editProduct = async (req, res) => {
       isFeatured,
     } = req.body;
 
-    if (!req.file?.path) {
+    // ✅ Vercel-safe: req.file.buffer
+    if (!req.file?.buffer) {
       return res.status(400).json({ success: false, message: "Image file is required" });
     }
-    localFilePath = req.file.path;
 
     const required = [id, name, categoryId, subCategoryId, brandId, abv, volumeMl, price];
-    if (required.some(v => v === undefined || v === null || v === "")) {
+    if (required.some((v) => v === undefined || v === null || v === "")) {
       return res.status(400).json({ success: false, message: "Something is missing" });
     }
 
@@ -256,32 +241,31 @@ export const editProduct = async (req, res) => {
       Product.findById(id),
     ]);
 
-    if (!currentProduct) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
+    if (!currentProduct) return res.status(404).json({ success: false, message: "Product not found" });
     if (!category) return res.status(400).json({ success: false, message: "Invalid categoryId" });
     if (!subCategory) return res.status(400).json({ success: false, message: "Invalid subCategoryId" });
     if (!brand) return res.status(400).json({ success: false, message: "Invalid brandId" });
 
-    // ✅ fetch existing Image doc to get publicId (so Cloudinary overwrites same asset)
-    let existingPublicId = null;
+    // existing image
     let existingImageDoc = null;
+    let existingPublicId = null;
 
     if (currentProduct.image) {
       existingImageDoc = await Image.findById(currentProduct.image);
       existingPublicId = existingImageDoc?.publicId || null;
     }
 
-    const cloudinaryResponse = await uploadOnCloudinary(localFilePath, existingPublicId);
+    // ✅ upload new image, overwrite existing if possible
+    const cloud = await uploadOnCloudinary(req.file.buffer, existingPublicId);
 
-    const url = cloudinaryResponse?.secure_url || cloudinaryResponse?.url;
-    const publicId = cloudinaryResponse?.public_id;
+    const url = cloud?.secure_url || cloud?.url;
+    const publicId = cloud?.public_id;
 
     if (!url || !publicId) {
       return res.status(500).json({ success: false, message: "Cloudinary upload failed" });
     }
 
-    // ✅ update product fields
+    // update product fields
     currentProduct.name = name.trim();
     currentProduct.category = category._id;
     currentProduct.subCategory = subCategory._id;
@@ -291,7 +275,7 @@ export const editProduct = async (req, res) => {
     currentProduct.description = description;
     currentProduct.price = Number(price);
 
-    // ✅ update/create Image document and store ObjectId in product.image
+    // update/create image doc
     let imageDoc;
     if (existingImageDoc) {
       imageDoc = await Image.findByIdAndUpdate(
@@ -302,6 +286,7 @@ export const editProduct = async (req, res) => {
     } else {
       imageDoc = await Image.create({ url, publicId });
     }
+
     currentProduct.image = imageDoc._id;
 
     const toBool = (v) => v === true || v === "true";
@@ -310,22 +295,16 @@ export const editProduct = async (req, res) => {
 
     await currentProduct.save();
 
-    const product = await Product.findById(currentProduct._id)
-      .populate("image");
+    const product = await Product.findById(currentProduct._id).populate("image");
     return res.status(200).json({ success: true, product });
   } catch (err) {
+    console.error("Edit product error:", err);
     return res.status(500).json({ success: false, message: err.message });
-  } finally {
-    if (localFilePath) {
-      try { fs.unlinkSync(localFilePath); } catch { }
-    }
   }
 };
 
 export const deleteProduct = async (req, res) => {
   const { id } = req.params;
-
-  console.log(id);
   try {
     const product = await Product.findByIdAndDelete(id);
     if (!product) {
@@ -335,4 +314,4 @@ export const deleteProduct = async (req, res) => {
   } catch (err) {
     return res.status(400).json({ success: false, message: err.message });
   }
-}
+};
