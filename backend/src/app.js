@@ -45,7 +45,6 @@ app.use(emailMiddleware);
 app.get("/", (req,res) => {
   res.send("Api working!");
 })
-
 app.use("/api/auth", authRoutes);
 
 // admin route
