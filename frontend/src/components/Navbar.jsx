@@ -204,6 +204,7 @@ export default function Navbar() {
               {[
                 { to: "/about", label: "About" },
                 { to: "/products", label: "Liquors" },
+                { to: "/shop", label: "Shops" },
                 { to: "/offers", label: "Offers" },
                 { to: "/contact", label: "Contact" },
               ].map((item) => (
