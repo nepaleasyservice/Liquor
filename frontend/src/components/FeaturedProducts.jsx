@@ -34,7 +34,7 @@ export default function FeaturedProducts() {
                   bg-white/5 border border-white/10
                   backdrop-blur-xl shadow-lg
                   transition-all duration-300
-                  hover:border-[#D4A056] hover:-translate-y-2
+                  hover:border-[#D4A056] hover:-translate-y-1
                 "
               >
                 {/* IMAGE */}
@@ -43,7 +43,7 @@ export default function FeaturedProducts() {
                     <img
                       src={product?.image?.url}
                       alt={product?.name}
-                      className="h-full object-contain drop-shadow-xl transition-transform duration-300 hover:scale-110"
+                      className="h-full object-contain drop-shadow-xl transition-transform duration-300"
                       onError={(e) =>
                         (e.currentTarget.style.display = "none")
                       }
