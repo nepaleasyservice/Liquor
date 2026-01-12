@@ -33,20 +33,15 @@ export default function FeaturedProducts() {
                   p-6 rounded-2xl
                   bg-white/5 border border-white/10
                   backdrop-blur-xl shadow-lg
-                  transition-all duration-300
-                  hover:border-[#D4A056] hover:-translate-y-2
                 "
               >
-                {/* IMAGE */}
                 <Link to={`/product/${pid}`}>
                   <div className="w-full h-44 flex items-center justify-center mb-4">
                     <img
                       src={product?.image?.url}
                       alt={product?.name}
-                      className="h-full object-contain drop-shadow-xl transition-transform duration-300 hover:scale-110"
-                      onError={(e) =>
-                        (e.currentTarget.style.display = "none")
-                      }
+                      className="h-full object-contain drop-shadow-xl"
+                      onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   </div>
 
