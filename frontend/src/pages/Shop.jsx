@@ -24,7 +24,8 @@ function getCategoryId(p) {
 }
 
 function getCategoryName(p, categories) {
-  const direct = p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
+  const direct =
+    p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
   if (direct) return direct;
 
   const cid = getCategoryId(p);
@@ -95,7 +96,12 @@ export default function Shop() {
   useEffect(() => setBrandId(urlBrand), [urlBrand]);
   useEffect(() => setSearchInput(urlName), [urlName]);
 
-  const updateUrlParams = (nextCategoryId, nextBrandId, nextPage = 1, nextName = "") => {
+  const updateUrlParams = (
+    nextCategoryId,
+    nextBrandId,
+    nextPage = 1,
+    nextName = ""
+  ) => {
     const nextParams = {};
     if (nextCategoryId) nextParams.category = nextCategoryId;
     if (nextBrandId) nextParams.brand = nextBrandId;
@@ -154,7 +160,9 @@ export default function Shop() {
         <h1 className="text-5xl font-extrabold tracking-wide">
           Luxury <span className="text-[#D4A056]">Liquor</span> House
         </h1>
-        <p className="text-gray-500">World-class spirits delivered to your door.</p>
+        <p className="text-gray-500">
+          World-class spirits delivered to your door.
+        </p>
       </div>
 
       {/* SEARCH + BUTTON */}
@@ -236,7 +244,7 @@ export default function Shop() {
               return (
                 <div
                   key={pid}
-                  className="relative rounded-3xl overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 shadow-lg group transition-transform duration-300 hover:-translate-y-2"
+                  className="relative rounded-3xl overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 shadow-lg group transition-transform duration-300 hover:-translate-y-1"
                 >
                   <Link to={`/product/${pid}`}>
                     <div className="absolute top-4 left-4 bg-black/70 text-[#D4A056] px-3 py-1 rounded-full text-xs border border-[#D4A056]/30">
@@ -264,7 +272,9 @@ export default function Shop() {
                   </Link>
 
                   <div className="p-4 text-center">
-                    <h3 className="text-lg font-semibold break-words">{item?.name}</h3>
+                    <h3 className="text-lg font-semibold break-words">
+                      {item?.name}
+                    </h3>
 
                     <button
                       onClick={() =>
@@ -285,7 +295,9 @@ export default function Shop() {
           </div>
 
           {!loading && products.length === 0 && (
-            <p className="text-center mt-16 text-gray-500">No premium products found.</p>
+            <p className="text-center mt-16 text-gray-500">
+              No premium products found.
+            </p>
           )}
 
           {/* PAGINATION */}
@@ -338,7 +350,8 @@ export default function Shop() {
             <p className="text-center text-xs text-gray-500">
               Page <span className="text-white">{currentPage}</span> of{" "}
               <span className="text-white">{totalPages}</span> • Total{" "}
-              <span className="text-white">{pagination?.total ?? 0}</span> products • Limit{" "}
+              <span className="text-white">{pagination?.total ?? 0}</span>{" "}
+              products • Limit{" "}
               <span className="text-white">{pagination?.limit ?? LIMIT}</span>
             </p>
           </div>
