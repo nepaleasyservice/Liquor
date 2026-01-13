@@ -132,7 +132,7 @@ export default function AdminDashboard() {
     return [...list].sort((a, b) => Number(b?.totalRevenue || 0) - Number(a?.totalRevenue || 0));
   }, [data]);
 
-  const totalOrders = Number(data?.totalOrders || 0);
+  const totalOrders = Number(data?.totalOrders ?? data?.totalOrder ?? 0);
 
   const totalRevenue = useMemo(() => {
     return productStats.reduce((sum, x) => sum + Number(x?.totalRevenue || 0), 0);
@@ -300,8 +300,8 @@ export default function AdminDashboard() {
                   sub={
                     topProduct
                       ? `Rs. ${formatMoney(topProduct.totalRevenue)} • Qty ${formatMoney(
-                          topProduct.totalQty
-                        )}`
+                        topProduct.totalQty
+                      )}`
                       : "No data"
                   }
                 />
