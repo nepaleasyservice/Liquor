@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
-//  robust date parser for "M/D/YYYY, h:mm:ss AM"
+// robust date parser for "M/D/YYYY, h:mm:ss AM"
 function parseMaybeLocaleDate(value) {
   if (!value) return 0;
 
@@ -44,7 +44,7 @@ function parseMaybeLocaleDate(value) {
   return Number.isFinite(dt) ? dt : 0;
 }
 
-//  fallback: ObjectId timestamp (Mongo)
+// fallback: ObjectId timestamp (Mongo)
 function getMongoObjectIdTime(id) {
   if (!id || typeof id !== "string" || id.length < 8) return 0;
   const hexSeconds = id.substring(0, 8);
@@ -60,7 +60,7 @@ function getProductTime(p) {
   return getMongoObjectIdTime(p?._id ?? p?.id);
 }
 
-//  SUPER SAFE image resolver (so UI doesn't break if backend changes shape)
+// SUPER SAFE image resolver (so UI doesn't break if backend changes shape)
 function getImgSrc(p) {
   if (!p) return "";
   if (typeof p?.image === "string" && p.image) return p.image;
@@ -79,16 +79,17 @@ function SkeletonLine({ className = "" }) {
 function DesktopTableSkeleton({ rows = 8 }) {
   const items = Array.from({ length: rows });
   return (
-    <div className="hidden md:block overflow-x-auto">
-      <table className="w-full min-w-[1080px] table-fixed text-left text-sm">
+    <div className="hidden md:block w-full max-w-full overflow-x-auto">
+      {/* NOTE: removed min-w and table-fixed to avoid overflow */}
+      <table className="w-full table-auto text-left text-sm">
         <thead className="bg-black/30 text-gray-300">
           <tr>
-            <th className="px-2 py-2 font-medium w-[30%]">Product</th>
-            <th className="px-2 py-2 font-medium w-[16%]">Category</th>
-            <th className="px-2 py-2 font-medium w-[14%]">Brand</th>
-            <th className="px-2 py-2 font-medium w-[9%]">Price</th>
-            <th className="px-2 py-2 font-medium w-[11%]">Status</th>
-            <th className="px-2 py-2 font-medium text-right w-[20%]">Actions</th>
+            <th className="px-2 py-2 font-medium">Product</th>
+            <th className="px-2 py-2 font-medium">Category</th>
+            <th className="px-2 py-2 font-medium">Brand</th>
+            <th className="px-2 py-2 font-medium">Price</th>
+            <th className="px-2 py-2 font-medium">Status</th>
+            <th className="px-2 py-2 font-medium text-right">Actions</th>
           </tr>
         </thead>
 
@@ -211,7 +212,7 @@ export default function AdminProducts() {
     updateProduct,
   } = useAdmin();
 
-  //  SERVER-SIDE filters
+  // SERVER-SIDE filters
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
@@ -221,15 +222,15 @@ export default function AdminProducts() {
   const [editInitial, setEditInitial] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
-  //  pagination state (syncs with server)
+  // pagination state (syncs with server)
   const [page, setPage] = useState(pagination?.page || 1);
   const [limit, setLimit] = useState(pagination?.limit || 10);
 
-  //  lock current order while toggling so table/cards don't reorder
+  // lock current order while toggling so table/cards don't reorder
   const [freezeIds, setFreezeIds] = useState(null);
   const filteredProductsRef = useRef([]);
 
-  //  delete confirmation modal state
+  // delete confirmation modal state
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
@@ -249,13 +250,13 @@ export default function AdminProducts() {
     if (pagination?.limit) setLimit(pagination.limit);
   }, [pagination?.page, pagination?.limit]);
 
-  //  initial fetch (server)
+  // initial fetch (server)
   useEffect(() => {
     fetchProducts?.({ page: 1, limit: 10, clear: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //  SERVER-SIDE search/apply filters
+  // SERVER-SIDE search/apply filters
   const applyFilters = async () => {
     const res = await fetchProducts?.({
       page: 1,
@@ -278,7 +279,7 @@ export default function AdminProducts() {
     if (res?.ok) toast.success("Cleared ");
   };
 
-  // ---------- sorting ONLY (NO client filtering now) ----------
+  // sorting ONLY (NO client filtering now)
   function computeSorted(prodList) {
     return [...(prodList || [])].sort((a, b) => {
       const aa = a?.isActive ? 1 : 0;
@@ -383,7 +384,7 @@ export default function AdminProducts() {
     setTimeout(unfreeze, 0);
   };
 
-  //  open delete modal instead of window.confirm
+  // open delete modal instead of window.confirm
   const onDelete = async (p) => {
     if (typeof deleteProduct !== "function") {
       toast.error("deleteProduct is not implemented in AdminContext ");
@@ -410,7 +411,7 @@ export default function AdminProducts() {
     setTimeout(unfreeze, 0);
   };
 
-  //  Pagination handlers (SERVER-SIDE with same filters)
+  // Pagination handlers (SERVER-SIDE with same filters)
   const goToPage = async (nextPage) => {
     const res = await fetchProducts?.({
       page: nextPage,
@@ -438,10 +439,10 @@ export default function AdminProducts() {
     if (!res?.ok) toast.error(res?.message || "Failed to change limit ");
   };
 
-  //  FIXED WIDTH buttons so UI never jumps
+  // FIXED WIDTH buttons so UI never jumps (responsive width)
   const actionBtnClass =
     "rounded-xl border border-white/10 bg-white/5 px-3 text-[12px] text-gray-200 " +
-    "hover:bg-white/10 disabled:opacity-60 h-9 leading-none text-center w-[112px]";
+    "hover:bg-white/10 disabled:opacity-60 h-9 leading-none text-center w-24 lg:w-[112px]";
 
   const iconBtnClass =
     "grid place-items-center rounded-xl border border-white/10 bg-white/5 " +
@@ -470,13 +471,15 @@ export default function AdminProducts() {
   const skeletonRows = Math.min(Math.max(limit || 10, 6), 20);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    // NOTE: prevent any page-level horizontal overflow
+    <div className="min-h-screen bg-black text-white p-6 overflow-x-hidden">
       <ToastContainer position="top-right" autoClose={2200} newestOnTop theme="dark" />
 
       <div className="mx-auto max-w-7xl flex flex-col gap-6 md:flex-row">
         <AdminSidebar />
 
-        <main className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        {/* NOTE: min-w-0 is KEY in flex layouts to prevent overflow */}
+        <main className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold">Products</h1>
@@ -498,9 +501,9 @@ export default function AdminProducts() {
             </button>
           </div>
 
-          {/*  SERVER-SIDE FILTER BAR */}
+          {/* SERVER-SIDE FILTER BAR */}
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -583,7 +586,7 @@ export default function AdminProducts() {
               {showSkeleton ? "Loading..." : `${filteredProducts.length} products (active + inactive)`}
             </div>
 
-            {/*  Skeletons while fetching */}
+            {/* Skeletons while fetching */}
             {showSkeleton ? (
               <>
                 <DesktopTableSkeleton rows={skeletonRows} />
@@ -591,17 +594,18 @@ export default function AdminProducts() {
               </>
             ) : (
               <>
-                {/*  Desktop table */}
-                <div className="hidden md:block overflow-x-auto">
-                  <table className="w-full min-w-[1080px] table-fixed text-left text-sm">
+                {/* Desktop table (FIXED OVERFLOW) */}
+                <div className="hidden md:block w-full max-w-full overflow-x-auto">
+                  {/* NOTE: removed min-w-[1080px] and table-fixed */}
+                  <table className="w-full table-auto text-left text-sm">
                     <thead className="bg-black/30 text-gray-300">
                       <tr>
-                        <th className="px-2 py-2 font-medium w-[30%]">Product</th>
-                        <th className="px-2 py-2 font-medium w-[16%]">Category</th>
-                        <th className="px-2 py-2 font-medium w-[14%]">Brand</th>
-                        <th className="px-2 py-2 font-medium w-[9%]">Price</th>
-                        <th className="px-2 py-2 font-medium w-[11%]">Status</th>
-                        <th className="px-2 py-2 font-medium text-right w-[20%]">Actions</th>
+                        <th className="px-2 py-2 font-medium">Product</th>
+                        <th className="px-2 py-2 font-medium">Category</th>
+                        <th className="px-2 py-2 font-medium">Brand</th>
+                        <th className="px-2 py-2 font-medium">Price</th>
+                        <th className="px-2 py-2 font-medium">Status</th>
+                        <th className="px-2 py-2 font-medium text-right">Actions</th>
                       </tr>
                     </thead>
 
@@ -727,7 +731,7 @@ export default function AdminProducts() {
                   </table>
                 </div>
 
-                {/*  Pagination footer */}
+                {/* Pagination footer */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-white/10 bg-black/20">
                   <div className="text-xs text-gray-300">
                     Total: <span className="text-white">{pagination?.total ?? 0}</span> • Page{" "}
@@ -768,7 +772,7 @@ export default function AdminProducts() {
                   </div>
                 </div>
 
-                {/*  Mobile cards */}
+                {/* Mobile cards */}
                 <div className="md:hidden divide-y divide-white/10">
                   {filteredProducts.map((p) => {
                     const pid = p._id ?? p.id;
@@ -811,7 +815,9 @@ export default function AdminProducts() {
                               </div>
                             </div>
 
-                            <div className="mt-2 text-xs text-gray-400 truncate">Category: {p.category?.name ?? "-"}</div>
+                            <div className="mt-2 text-xs text-gray-400 truncate">
+                              Category: {p.category?.name ?? "-"}
+                            </div>
                             <div className="text-xs text-gray-400 truncate">Brand: {p.brand?.name ?? "-"}</div>
 
                             <div className="mt-2 flex items-center justify-between gap-3">
@@ -831,19 +837,11 @@ export default function AdminProducts() {
                             </div>
 
                             <div className="mt-3 flex flex-wrap items-center gap-2">
-                              <button
-                                onClick={() => onTogglePublish(p)}
-                                disabled={loading}
-                                className={actionBtnClass}
-                              >
+                              <button onClick={() => onTogglePublish(p)} disabled={loading} className={actionBtnClass}>
                                 {p.isActive ? "Unpublish" : "Publish"}
                               </button>
 
-                              <button
-                                onClick={() => onToggleFeatured(p)}
-                                disabled={loading}
-                                className={actionBtnClass}
-                              >
+                              <button onClick={() => onToggleFeatured(p)} disabled={loading} className={actionBtnClass}>
                                 {p.isFeatured ? "Unfeature" : "Feature"}
                               </button>
 
@@ -910,7 +908,7 @@ export default function AdminProducts() {
         </main>
       </div>
 
-      {/*  Delete confirm modal */}
+      {/* Delete confirm modal */}
       {isDeleteOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           {/* backdrop */}
@@ -928,8 +926,8 @@ export default function AdminProducts() {
             <div className="text-lg font-semibold text-white">Delete product?</div>
             <p className="mt-2 text-sm text-gray-300">
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-white">“{deleteTarget?.name ?? "this product"}”</span>?
-              This action cannot be undone.
+              <span className="font-semibold text-white">“{deleteTarget?.name ?? "this product"}”</span>? This action
+              cannot be undone.
             </p>
 
             <div className="mt-5 flex items-center justify-end gap-2">
@@ -958,7 +956,7 @@ export default function AdminProducts() {
         </div>
       )}
 
-      {/*  Add Product */}
+      {/* Add Product */}
       <ProductModal
         open={isAddOpen}
         onClose={() => setIsAddOpen(false)}
@@ -980,7 +978,7 @@ export default function AdminProducts() {
         }}
       />
 
-      {/*  Edit Product */}
+      {/* Edit Product */}
       <ProductModal
         open={isEditOpen}
         onClose={() => {
