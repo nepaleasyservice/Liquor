@@ -10,7 +10,6 @@ export default function Auth() {
   const [error, setError] = useState("");
   const [text, setText] = useState("");
 
-  // ✅ verification UI state
   const [verifiedMsg, setVerifiedMsg] = useState(""); // "", "success", "fail"
 
   const navigate = useNavigate();
@@ -24,7 +23,6 @@ export default function Auth() {
     password: "",
   });
 
-  // ✅ detect /login?verified=true or /login?verified=false
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const v = params.get("verified");
@@ -65,7 +63,6 @@ export default function Auth() {
 
     try {
       const res = await signup(signupData);
-
       setSignupData({ name: "", email: "", password: "" });
 
       setActive("login");
@@ -77,53 +74,55 @@ export default function Auth() {
     }
   };
 
-  // ✅ "Login here" button action: show login tab and remove query
   const handleLoginHere = () => {
     setVerifiedMsg("");
     setError("");
     setText("");
     setActive("login");
-    navigate("/login", { replace: true }); // removes ?verified=true
+    navigate("/login", { replace: true });
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B0705] px-4 pt-28 pb-16 bg-[url('/whiskey-bg.jpg')] bg-cover bg-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+  const inputWrap =
+    "flex items-center bg-white rounded-xl border border-gray-300 px-4 focus-within:ring-2 focus-within:ring-[#D4A056]";
 
-      <div className="relative bg-[#1A0E0B]/80 border border-[#D4A056]/30 rounded-3xl shadow-[0_0_40px_rgba(212,160,86,0.25)] p-10 w-full max-w-md backdrop-blur-xl animate-fadeIn">
+  const inputField =
+    "w-full bg-transparent py-3 px-3 focus:outline-none";
+
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center bg-white px-4 pt-28 pb-16"
+      style={{ color: "#222222" }}
+    >
+      <div className="bg-white border border-gray-200 rounded-3xl shadow-xl p-10 w-full max-w-md animate-fadeIn">
         <h1 className="text-4xl font-extrabold text-center mb-10 tracking-wide bg-gradient-to-r from-[#D4A056] to-[#f1d39f] bg-clip-text text-transparent">
           LiquorStore
         </h1>
 
-        {/* ✅ VERIFIED UI */}
+        {/* VERIFIED UI */}
         {verifiedMsg && (
           <div className="animate-slideUp text-center">
             {verifiedMsg === "success" ? (
               <>
-                <p className="text-green-400 text-xl font-semibold mb-3">
+                <p className="text-green-700 text-xl font-semibold mb-3">
                   ✅ User Verified Successfully
                 </p>
-                <p className="text-gray-200 mb-6">
-                  Your account has been verified. You can login now.
-                </p>
+                <p className="mb-6">Your account has been verified. You can login now.</p>
                 <button
                   onClick={handleLoginHere}
-                  className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg"
+                  className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transition"
                 >
                   Login here
                 </button>
               </>
             ) : (
               <>
-                <p className="text-red-400 text-xl font-semibold mb-3">
+                <p className="text-red-600 text-xl font-semibold mb-3">
                   ❌ Verification Failed
                 </p>
-                <p className="text-gray-200 mb-6">
-                  Verification link is invalid or expired.
-                </p>
+                <p className="mb-6">Verification link is invalid or expired.</p>
                 <button
                   onClick={handleLoginHere}
-                  className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg"
+                  className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg shadow-md hover:shadow-lg transition"
                 >
                   Go to Login
                 </button>
@@ -132,16 +131,16 @@ export default function Auth() {
           </div>
         )}
 
-        {/* ✅ Normal login/signup UI only when not showing verified */}
+        {/* Normal login/signup UI */}
         {!verifiedMsg && (
           <>
-            <div className="flex mb-8 bg-[#0C0806]/60 rounded-2xl p-1 border border-[#D4A056]/20">
+            <div className="flex mb-8 bg-white rounded-2xl p-1 border border-gray-200">
               <button
                 onClick={() => setActive("login")}
                 className={`flex-1 py-3 font-semibold rounded-xl transition-all duration-300 ${
                   active === "login"
-                    ? "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black shadow-md"
-                    : "text-gray-300 hover:bg-[#2C1E14]"
+                    ? "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black shadow-sm"
+                    : "text-[#222222] hover:bg-white"
                 }`}
               >
                 Login
@@ -150,8 +149,8 @@ export default function Auth() {
                 onClick={() => setActive("signup")}
                 className={`flex-1 py-3 font-semibold rounded-xl transition-all duration-300 ${
                   active === "signup"
-                    ? "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black shadow-md"
-                    : "text-gray-300 hover:bg-[#2C1E14]"
+                    ? "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black shadow-sm"
+                    : "text-[#222222] hover:bg-white"
                 }`}
               >
                 Sign Up
@@ -159,51 +158,49 @@ export default function Auth() {
             </div>
 
             {text && !error && (
-              <p className="text-green-400 text-center mb-4">{text}</p>
+              <p className="text-green-700 text-center mb-4">{text}</p>
             )}
-            {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+            {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
-            {/* ---------------- LOGIN ---------------- */}
+            {/* LOGIN */}
             {active === "login" && (
-              <form
-                className="space-y-6 animate-slideUp"
-                onSubmit={handleLoginSubmit}
-              >
+              <form className="space-y-6 animate-slideUp" onSubmit={handleLoginSubmit}>
                 <div className="group">
-                  <label className="text-gray-300 mb-1 block">Email</label>
-                  <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-                    <Mail className="text-gray-400 w-5 h-5" />
+                  <label className="mb-1 block">Email</label>
+                  <div className={inputWrap}>
+                    <Mail className="w-5 h-5" style={{ color: "#222222" }} />
                     <input
                       type="email"
                       name="email"
                       value={loginData.email}
                       onChange={handleLoginChange}
                       placeholder="you@example.com"
-                      className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                      className={inputField}
+                      style={{ color: "#222222" }}
                     />
                   </div>
                 </div>
 
                 <div className="group">
-                  <label className="text-gray-300 mb-1 block">Password</label>
-                  <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-                    <Lock className="text-gray-400 w-5 h-5" />
+                  <label className="mb-1 block">Password</label>
+                  <div className={inputWrap}>
+                    <Lock className="w-5 h-5" style={{ color: "#222222" }} />
                     <input
                       type="password"
                       name="password"
                       value={loginData.password}
                       onChange={handleLoginChange}
                       placeholder="••••••••"
-                      className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                      className={inputField}
+                      style={{ color: "#222222" }}
                     />
                   </div>
 
-                  {/* ✅ Forgot password button */}
                   <div className="mt-2 text-right">
                     <button
                       type="button"
                       onClick={() => navigate("/forgot-password")}
-                      className="text-sm text-[#D4A056] hover:text-[#f1d39f] transition"
+                      className="text-sm text-[#B8852E] hover:text-[#D4A056] transition"
                     >
                       Forgot password?
                     </button>
@@ -212,67 +209,75 @@ export default function Auth() {
 
                 <button
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg"
+                  className={`w-full py-3 rounded-xl font-semibold text-lg shadow-md transition ${
+                    loading
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black hover:shadow-lg"
+                  }`}
                 >
                   {loading ? "Please wait..." : "Login"}
                 </button>
               </form>
             )}
 
-            {/* ---------------- SIGNUP ---------------- */}
+            {/* SIGNUP */}
             {active === "signup" && (
-              <form
-                className="space-y-6 animate-slideUp"
-                onSubmit={handleSignupSubmit}
-              >
+              <form className="space-y-6 animate-slideUp" onSubmit={handleSignupSubmit}>
                 <div className="group">
-                  <label className="text-gray-300 mb-1 block">Full Name</label>
-                  <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-                    <User className="text-gray-400 w-5 h-5" />
+                  <label className="mb-1 block">Full Name</label>
+                  <div className={inputWrap}>
+                    <User className="w-5 h-5" style={{ color: "#222222" }} />
                     <input
                       type="text"
                       name="name"
                       value={signupData.name}
                       onChange={handleSignupChange}
                       placeholder="Your full name"
-                      className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                      className={inputField}
+                      style={{ color: "#222222" }}
                     />
                   </div>
                 </div>
 
                 <div className="group">
-                  <label className="text-gray-300 mb-1 block">Email</label>
-                  <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-                    <Mail className="text-gray-400 w-5 h-5" />
+                  <label className="mb-1 block">Email</label>
+                  <div className={inputWrap}>
+                    <Mail className="w-5 h-5" style={{ color: "#222222" }} />
                     <input
                       type="email"
                       name="email"
                       value={signupData.email}
                       onChange={handleSignupChange}
                       placeholder="you@example.com"
-                      className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                      className={inputField}
+                      style={{ color: "#222222" }}
                     />
                   </div>
                 </div>
 
                 <div className="group">
-                  <label className="text-gray-300 mb-1 block">Password</label>
-                  <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-                    <Lock className="text-gray-400 w-5 h-5" />
+                  <label className="mb-1 block">Password</label>
+                  <div className={inputWrap}>
+                    <Lock className="w-5 h-5" style={{ color: "#222222" }} />
                     <input
                       type="password"
                       name="password"
                       value={signupData.password}
                       onChange={handleSignupChange}
                       placeholder="Create a password"
-                      className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                      className={inputField}
+                      style={{ color: "#222222" }}
                     />
                   </div>
                 </div>
 
                 <button
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg"
+                  className={`w-full py-3 rounded-xl font-semibold text-lg shadow-md transition ${
+                    loading
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black hover:shadow-lg"
+                  }`}
                 >
                   {loading ? "Please wait..." : "Create Account"}
                 </button>

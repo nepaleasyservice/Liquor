@@ -38,49 +38,63 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B0705] px-4 pt-28 pb-16 bg-[url('/whiskey-bg.jpg')] bg-cover bg-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div
+      className="min-h-screen flex items-center justify-center bg-white px-4 pt-28 pb-16 bg-[url('/whiskey-bg.jpg')] bg-cover bg-center"
+      style={{ color: "#222222" }}
+    >
+      {/* solid overlay (no opacity, no blur) */}
+      <div className="absolute inset-0 bg-white" />
 
-      <div className="relative bg-[#1A0E0B]/80 border border-[#D4A056]/30 rounded-3xl shadow-[0_0_40px_rgba(212,160,86,0.25)] p-10 w-full max-w-md backdrop-blur-xl animate-fadeIn">
+      <div className="relative bg-white border border-gray-200 rounded-3xl shadow-xl p-10 w-full max-w-md animate-fadeIn">
         <h1 className="text-3xl font-extrabold text-center mb-8 tracking-wide bg-gradient-to-r from-[#D4A056] to-[#f1d39f] bg-clip-text text-transparent">
           Reset Password
         </h1>
 
-        {msg && !error && <p className="text-green-400 text-center mb-4">{msg}</p>}
-        {error && <p className="text-red-400 text-center mb-4">{error}</p>}
+        {msg && !error && <p className="text-green-700 text-center mb-4">{msg}</p>}
+        {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
         <form className="space-y-6" onSubmit={onSubmit}>
           <div>
-            <label className="text-gray-300 mb-1 block">New Password</label>
-            <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-              <Lock className="text-gray-400 w-5 h-5" />
+            <label className="mb-1 block" style={{ color: "#222222" }}>
+              New Password
+            </label>
+            <div className="flex items-center bg-white rounded-xl border border-gray-300 px-4 focus-within:ring-2 focus-within:ring-[#D4A056]">
+              <Lock className="w-5 h-5" style={{ color: "#222222" }} />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                className="w-full bg-transparent py-3 px-3 focus:outline-none"
+                style={{ color: "#222222" }}
               />
             </div>
           </div>
 
           <div>
-            <label className="text-gray-300 mb-1 block">Confirm Password</label>
-            <div className="flex items-center bg-[#0E0907] rounded-xl border border-[#3B2519] px-4">
-              <Lock className="text-gray-400 w-5 h-5" />
+            <label className="mb-1 block" style={{ color: "#222222" }}>
+              Confirm Password
+            </label>
+            <div className="flex items-center bg-white rounded-xl border border-gray-300 px-4 focus-within:ring-2 focus-within:ring-[#D4A056]">
+              <Lock className="w-5 h-5" style={{ color: "#222222" }} />
               <input
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-transparent py-3 px-3 text-white focus:outline-none"
+                className="w-full bg-transparent py-3 px-3 focus:outline-none"
+                style={{ color: "#222222" }}
               />
             </div>
           </div>
 
           <button
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black py-3 rounded-xl font-semibold text-lg"
+            className={`w-full py-3 rounded-xl font-semibold text-lg shadow-md transition ${
+              loading
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black hover:shadow-lg"
+            }`}
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
@@ -88,7 +102,8 @@ export default function ResetPassword() {
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="w-full border border-[#D4A056]/40 text-[#D4A056] py-3 rounded-xl font-semibold text-lg hover:bg-[#D4A056]/10 transition"
+            className="w-full border border-[#D4A056] py-3 rounded-xl font-semibold text-lg transition hover:bg-white"
+            style={{ color: "#222222" }}
           >
             Back to Login
           </button>

@@ -6,7 +6,7 @@ import FestivalSpecials from "../components/offers/FestivalSpecials";
 
 export default function Offers() {
   return (
-    <div className="bg-[#0c0c0c] text-white min-h-screen pt-24 pb-16">
+    <div className="bg-white min-h-screen pt-24 pb-16" style={{ color: "#222222" }}>
       <OffersHeader />
       <OfferBanners />
       <DiscountCards />

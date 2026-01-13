@@ -6,7 +6,7 @@ export default function DiscountCards() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 mb-16">
+    <div className="max-w-7xl mx-auto px-6 mb-16 bg-white" style={{ color: "#222222" }}>
       <h2 className="text-4xl font-extrabold tracking-wide text-[#D4A056] mb-16 text-center">
         Top Discounts
       </h2>
@@ -16,28 +16,30 @@ export default function DiscountCards() {
           <div
             key={i}
             className="
-              bg-[#1a1a1a] 
-              rounded-xl 
-              shadow-lg 
-              p-5 
-              border 
-              border-transparent
-              transition-all 
-              duration-300 
-              hover:scale-105 
+              bg-white
+              rounded-xl
+              shadow-lg
+              p-5
+              border
+              border-gray-200
+              transition-all
+              duration-300
+              hover:scale-105
               hover:border-[#D4A056]
-              hover:shadow-[0_0_15px_#D4A056]
             "
+            style={{ color: "#222222" }}
           >
             <img
               src={item.img}
-              className="w-full h-52 rounded-lg object-cover mb-4"
+              alt={item.name}
+              className="w-full h-52 rounded-lg object-cover mb-4 border border-gray-200 bg-white"
             />
 
-            <h3 className="text-xl font-semibold">{item.name}</h3>
-            <p className="text-[#D4A056] font-bold text-lg mt-1">
-              {item.off}
-            </p>
+            <h3 className="text-xl font-semibold" style={{ color: "#222222" }}>
+              {item.name}
+            </h3>
+
+            <p className="text-[#D4A056] font-bold text-lg mt-1">{item.off}</p>
           </div>
         ))}
       </div>

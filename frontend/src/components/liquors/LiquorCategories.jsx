@@ -49,12 +49,12 @@ function getPageItems(current, total, siblings = 1) {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-      <div className="h-40 rounded-xl bg-white/10 animate-pulse" />
+    <div className="rounded-2xl border border-gray-200 bg-white p-6">
+      <div className="h-40 rounded-xl bg-gray-200 animate-pulse" />
       <div className="mt-5 space-y-3">
-        <div className="h-4 w-3/4 mx-auto bg-white/10 rounded animate-pulse" />
-        <div className="h-4 w-1/2 mx-auto bg-white/10 rounded animate-pulse" />
-        <div className="h-10 w-full bg-white/10 rounded-full animate-pulse" />
+        <div className="h-4 w-3/4 mx-auto bg-gray-200 rounded animate-pulse" />
+        <div className="h-4 w-1/2 mx-auto bg-gray-200 rounded animate-pulse" />
+        <div className="h-10 w-full bg-gray-200 rounded-full animate-pulse" />
       </div>
     </div>
   );
@@ -64,18 +64,16 @@ export default function LiquorCategories() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-const {
-  shopProducts: products,
-  shopPagination: pagination,
-  fetchShopProducts,
-  SHOP_LIMIT,
-  loading,
-  categories,
-  fetchCategories,
-} = useAdmin();
-const LIMIT = 8;
+  const {
+    shopProducts: products = [],
+    shopPagination: pagination,
+    fetchShopProducts,
+    loading,
+    categories,
+    fetchCategories,
+  } = useAdmin();
 
-
+  const LIMIT = 8;
 
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [page, setPage] = useState(1);
@@ -86,9 +84,13 @@ const LIMIT = 8;
   }, []);
 
   useEffect(() => {
-  fetchShopProducts?.({ page, category: selectedCategoryId || undefined, clear: true });
-}, [page, selectedCategoryId]);
-
+    fetchShopProducts?.({
+      page,
+      category: selectedCategoryId || undefined,
+      clear: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, selectedCategoryId]);
 
   const categoryOptions = useMemo(() => {
     return (categories || [])
@@ -110,11 +112,11 @@ const LIMIT = 8;
   const currentPage = pagination?.page ?? page;
   const totalPages = pagination?.totalPages ?? 1;
 
-  const pageItems = useMemo(() => {
-    return getPageItems(currentPage, totalPages, 1);
-  }, [currentPage, totalPages]);
+  const pageItems = useMemo(() => getPageItems(currentPage, totalPages, 1), [
+    currentPage,
+    totalPages,
+  ]);
 
-  // ✅ show skeleton whenever fetching this list page
   const showSkeleton = loading && products.length === 0;
 
   const refresh = async () => {
@@ -126,19 +128,19 @@ const LIMIT = 8;
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 mb-16">
+    <div className="max-w-7xl mx-auto px-6 mb-16 bg-white" style={{ color: "#222222" }}>
       {/* Header row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10">
         <div>
           <h2 className="text-4xl font-extrabold tracking-wide text-[#D4A056]">
             Browse Products
           </h2>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-2" style={{ color: "#222222" }}>
             Filter by category and explore the catalog.
           </p>
 
           {selectedCategoryName ? (
-            <p className="mt-2 text-sm text-gray-200/90">
+            <p className="mt-2 text-sm" style={{ color: "#222222" }}>
               Category:{" "}
               <span className="font-semibold text-[#D4A056]">
                 {selectedCategoryName}
@@ -148,7 +150,7 @@ const LIMIT = 8;
         </div>
 
         <div className="w-full sm:w-[280px]">
-          <label className="block text-xs text-gray-400 mb-2">
+          <label className="block text-xs mb-2" style={{ color: "#222222" }}>
             Filter by Category
           </label>
 
@@ -162,7 +164,8 @@ const LIMIT = 8;
               if (!id) navigate("/products");
               else navigate(`/products?category=${id}`);
             }}
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-white/20"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#D4A056]"
+            style={{ color: "#222222" }}
           >
             <option value="">All Categories</option>
             {categoryOptions.map((c) => (
@@ -172,11 +175,13 @@ const LIMIT = 8;
             ))}
           </select>
 
-          {/* Optional refresh button (still forces 8) */}
           <button
             type="button"
             onClick={refresh}
-            className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-gray-200 hover:bg-white/10 disabled:opacity-60"
+            className={`mt-3 w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm transition hover:border-[#D4A056] ${
+              loading ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
+            }`}
+            style={{ color: "#222222" }}
             disabled={loading}
           >
             Refresh
@@ -192,7 +197,9 @@ const LIMIT = 8;
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center text-gray-400 py-16">No products found.</div>
+        <div className="text-center py-16" style={{ color: "#222222" }}>
+          No products found.
+        </div>
       ) : (
         <>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -205,11 +212,11 @@ const LIMIT = 8;
                 <div
                   key={pid}
                   onClick={() => navigate(`/product/${pid}`)}
-                  className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.03] shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 p-6"
+                  className="cursor-pointer rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 p-6"
                 >
-                  <div className="relative w-full h-40 rounded-xl bg-black/30 border border-white/5 flex items-center justify-center overflow-hidden">
+                  <div className="relative w-full h-40 rounded-xl bg-white border border-gray-200 flex items-center justify-center overflow-hidden">
                     {categoryName ? (
-                      <div className="absolute top-3 left-3 z-10 rounded-full bg-black/70 px-3 py-1 text-[11px] font-semibold text-[#D4A056] border border-[#D4A056]/40 backdrop-blur">
+                      <div className="absolute top-3 left-3 z-10 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#D4A056] border border-[#D4A056]">
                         {categoryName}
                       </div>
                     ) : null}
@@ -223,12 +230,14 @@ const LIMIT = 8;
                         onError={(e) => (e.currentTarget.style.display = "none")}
                       />
                     ) : (
-                      <div className="text-gray-500 text-sm">No image</div>
+                      <div className="text-sm" style={{ color: "#222222" }}>
+                        No image
+                      </div>
                     )}
                   </div>
 
                   <div className="mt-5">
-                    <h3 className="text-center text-base font-semibold text-white break-words">
+                    <h3 className="text-center text-base font-semibold break-words" style={{ color: "#222222" }}>
                       {p?.name}
                     </h3>
 
@@ -242,7 +251,7 @@ const LIMIT = 8;
                         e.stopPropagation();
                         addToCart({ ...p, id: pid, image: img || p?.image });
                       }}
-                      className="mt-4 w-full rounded-full bg-[#D4A056] text-black font-semibold py-2 hover:brightness-110 transition"
+                      className="mt-4 w-full rounded-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black font-semibold py-2 hover:shadow-md transition"
                     >
                       Add to Cart
                     </button>
@@ -257,7 +266,12 @@ const LIMIT = 8;
             <button
               disabled={!pagination?.hasPrevPage || currentPage <= 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition"
+              className={`px-4 py-2 rounded-xl border border-gray-300 bg-white transition ${
+                !pagination?.hasPrevPage || currentPage <= 1
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "hover:border-[#D4A056]"
+              }`}
+              style={{ color: "#222222" }}
             >
               Prev
             </button>
@@ -265,7 +279,7 @@ const LIMIT = 8;
             {pageItems.map((it, idx) => {
               if (it === "...") {
                 return (
-                  <span key={`dots-${idx}`} className="px-2 text-gray-400">
+                  <span key={`dots-${idx}`} className="px-2" style={{ color: "#222222" }}>
                     ...
                   </span>
                 );
@@ -278,11 +292,12 @@ const LIMIT = 8;
                 <button
                   key={pnum}
                   onClick={() => setPage(pnum)}
-                  className={`w-10 h-10 rounded-xl border border-white/10 transition ${
+                  className={`w-10 h-10 rounded-xl border transition ${
                     active
-                      ? "bg-[#D4A056] text-black font-bold"
-                      : "bg-white/5 text-white hover:bg-white/10"
+                      ? "border-[#D4A056] bg-white text-[#B8852E] font-bold"
+                      : "border-gray-300 bg-white hover:border-[#D4A056]"
                   }`}
+                  style={{ color: active ? undefined : "#222222" }}
                 >
                   {pnum}
                 </button>
@@ -292,13 +307,18 @@ const LIMIT = 8;
             <button
               disabled={!pagination?.hasNextPage}
               onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition"
+              className={`px-4 py-2 rounded-xl border border-gray-300 bg-white transition ${
+                !pagination?.hasNextPage
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "hover:border-[#D4A056]"
+              }`}
+              style={{ color: "#222222" }}
             >
               Next
             </button>
           </div>
 
-          <p className="mt-4 text-center text-xs text-gray-500">
+          <p className="mt-4 text-center text-xs" style={{ color: "#222222" }}>
             Page {currentPage} of {totalPages} • Total{" "}
             {pagination?.total ?? products.length} products
           </p>

@@ -16,40 +16,46 @@ export default function TrendingProductPage() {
   const product = products.find((p) => p.id === Number(id));
 
   if (!product)
-    return <h1 className="text-white text-center text-3xl mt-32">Product Not Found</h1>;
+    return (
+      <h1 className="text-center text-3xl mt-32" style={{ color: "#222222" }}>
+        Product Not Found
+      </h1>
+    );
 
   return (
-    <div className="bg-[#080808] text-white min-h-screen pt-32 px-8 pb-24">
+    <div className="bg-white min-h-screen pt-32 px-8 pb-24" style={{ color: "#222222" }}>
       <div className="grid md:grid-cols-2 gap-16 items-center">
-
         <motion.img
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
           src={product.image}
           alt={product.name}
-          className="rounded-3xl w-full max-h-[500px] object-contain shadow-2xl"
+          className="rounded-3xl w-full max-h-[500px] object-contain shadow-lg border border-gray-200 bg-white"
         />
 
         <div>
-          <h1 className="text-5xl font-bold mb-3">{product.name}</h1>
+          <h1 className="text-5xl font-bold mb-3" style={{ color: "#222222" }}>
+            {product.name}
+          </h1>
 
-          <h2 className="text-3xl font-semibold text-[#D4A056] mb-6">
+          <h2 className="text-3xl font-semibold text-[#B8852E] mb-6">
             Rs. {product.price.toLocaleString()}
           </h2>
 
-          <p className="text-gray-300 leading-relaxed text-lg mb-10">{product.description}</p>
+          <p className="leading-relaxed text-lg mb-10" style={{ color: "#222222" }}>
+            {product.description}
+          </p>
 
           <motion.button
-            whileHover={{ scale: 1.08 }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => addToCart(product)}
-            className="px-10 py-3 rounded-full bg-[#D4A056] text-black font-medium text-lg"
+            className="px-10 py-3 rounded-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black font-medium text-lg shadow-sm hover:shadow-md"
           >
             Add to Cart
           </motion.button>
         </div>
-
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ export default function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="py-20 bg-[#080808] text-white">
+    <section className="py-20 bg-white" style={{ color: "#222222" }}>
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-4xl md:text-5xl font-extrabold tracking-wide text-center text-[#D4A056] mb-16">
           Featured Products
@@ -28,57 +28,30 @@ export default function FeaturedProducts() {
             return (
               <div
                 key={pid}
-                className="
-                  flex flex-col
-                  p-6 rounded-2xl
-                  bg-white/5 border border-white/10
-                  backdrop-blur-xl shadow-lg
-                  transition-all duration-300
-                  hover:border-[#D4A056] hover:-translate-y-1
-                "
+                className="flex flex-col p-6 rounded-2xl bg-white border border-gray-200 shadow-sm transition-all duration-300 hover:border-[#D4A056] hover:-translate-y-1 hover:shadow-md"
               >
-                {/* IMAGE */}
                 <Link to={`/product/${pid}`}>
-                  <div className="w-full h-44 flex items-center justify-center mb-4">
+                  <div className="w-full h-44 flex items-center justify-center mb-4 bg-white rounded-xl border border-gray-200">
                     <img
                       src={product?.image?.url}
                       alt={product?.name}
-                      className="h-full object-contain drop-shadow-xl transition-transform duration-300"
-                      onError={(e) =>
-                        (e.currentTarget.style.display = "none")
-                      }
+                      className="h-full object-contain transition-transform duration-300"
+                      onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   </div>
 
-                  {/* NAME */}
-                  <h3
-                    className="
-                      text-center text-lg font-semibold
-                      hover:text-[#D4A056] transition
-                      line-clamp-2 min-h-[3rem]
-                    "
-                  >
+                  <h3 className="text-center text-lg font-semibold transition line-clamp-2 min-h-[3rem] hover:text-[#D4A056]">
                     {product.name}
                   </h3>
                 </Link>
 
-                {/* PRICE */}
-                <p className="mt-2 text-center text-xl font-semibold text-[#D4A056]">
+                <p className="mt-2 text-center text-xl font-semibold text-[#B8852E]">
                   Rs. {Number(product.price || 0).toLocaleString()}
                 </p>
 
-                {/* BUTTON */}
                 <button
                   onClick={() => addToCart(product, 1)}
-                  className="
-                    mt-auto
-                    w-full py-2
-                    bg-[#D4A056] text-black
-                    rounded-full font-semibold
-                    transition
-                    hover:bg-[#b98c45]
-                    active:scale-95
-                  "
+                  className="mt-auto w-full py-2 bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black rounded-full font-semibold transition active:scale-95 hover:shadow-md"
                 >
                   Add to Cart
                 </button>

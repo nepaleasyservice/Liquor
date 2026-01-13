@@ -1,43 +1,28 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
-// ✅ build correct img url (cloudinary or local)
 function resolveImgSrc(photo, baseUrl) {
   if (!photo) return "";
-
-  // already absolute url (cloudinary, s3, etc.)
   if (/^https?:\/\//i.test(photo)) return photo;
 
-  // local path -> prefix with BASE_URL
   const base = (baseUrl || "").replace(/\/+$/, "");
   const path = String(photo).startsWith("/") ? photo : `/${photo}`;
   return `${base}${path}`;
 }
 
-// ✅ safely extract array from any common API shape
 function normalizeToArray(data) {
-  // case: backend returns array directly
   if (Array.isArray(data)) return data;
-
-  // case: backend returns { data: [...] }
   if (Array.isArray(data?.data)) return data.data;
-
-  // case: backend returns { enjoyTips: [...] } (sometimes happens)
   if (Array.isArray(data?.enjoyTips)) return data.enjoyTips;
-
-  // case: backend returns { tips: [...] }
   if (Array.isArray(data?.tips)) return data.tips;
-
-  // otherwise: not an array
   return [];
 }
 
 export default function EnjoySpirits() {
-  const [enjoyTips, setEnjoyTips] = useState([]); // should always be array
+  const [enjoyTips, setEnjoyTips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ⚠️ backend origin (example: http://localhost:5000)
   const BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -49,8 +34,6 @@ export default function EnjoySpirits() {
         setErrorMsg("");
 
         const res = await api.get("/enjoy/get");
-
-        // ✅ normalize so .map never crashes
         const tips = normalizeToArray(res?.data);
 
         if (isMounted) setEnjoyTips(tips);
@@ -73,23 +56,24 @@ export default function EnjoySpirits() {
   }, []);
 
   if (loading) {
-    return <div className="text-white text-center py-20">Loading...</div>;
+    return (
+      <div className="bg-white" style={{ color: "#222222" }}>
+        <div className="text-center py-20">Loading...</div>
+      </div>
+    );
   }
 
   return (
-    <section className="py-20 bg-[#0b0b0b] text-white">
+    <section className="py-20 bg-white" style={{ color: "#222222" }}>
       <div className="max-w-6xl mx-auto px-6 space-y-16">
-        {/* Section Title */}
         <h2 className="text-4xl font-extrabold tracking-wide text-[#D4A056] text-center">
           How to Enjoy Your Spirits
         </h2>
 
-        {/* Error message */}
-        {errorMsg && (
-          <p className="text-center text-red-400 font-medium">{errorMsg}</p>
-        )}
+        {errorMsg ? (
+          <p className="text-center text-red-600 font-medium">{errorMsg}</p>
+        ) : null}
 
-        {/* Tips Section */}
         {Array.isArray(enjoyTips) &&
           enjoyTips.map((tip, i) => {
             const imgSrc = resolveImgSrc(tip?.photo?.url, BASE_URL);
@@ -97,48 +81,42 @@ export default function EnjoySpirits() {
             return (
               <div
                 key={tip?._id ?? i}
-                className={`flex flex-col md:flex-row items-center gap-8 md:gap-16
-                ${i % 2 === 0 ? "" : "md:flex-row-reverse"}`}
+                className={`flex flex-col md:flex-row items-center gap-8 md:gap-16 ${
+                  i % 2 === 0 ? "" : "md:flex-row-reverse"
+                }`}
               >
-                {/* Image */}
-                <div className="flex-1 overflow-hidden rounded-3xl shadow-lg group">
+                <div className="flex-1 overflow-hidden rounded-3xl shadow-sm border border-gray-200 bg-white">
                   {imgSrc ? (
                     <img
                       src={imgSrc}
                       alt={tip?.name ?? "tip"}
-                      className="
-                        w-full h-48 object-cover
-                        transition-transform duration-500
-                        group-hover:scale-[1.03]
-                      "
+                      className="w-full h-48 object-cover transition-transform duration-500 hover:scale-[1.02]"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                       }}
                     />
                   ) : (
-                    <div className="w-full h-48 grid place-items-center text-gray-500 bg-white/5">
+                    <div className="w-full h-48 grid place-items-center bg-white">
                       No image
                     </div>
                   )}
                 </div>
 
-                {/* Text */}
                 <div className="flex-1 space-y-4">
                   <h3 className="text-2xl font-bold text-[#D4A056]">
                     {tip?.name}
                   </h3>
-                  <p className="text-gray-300">{tip?.description}</p>
+                  <p>{tip?.description}</p>
                   <span className="inline-block w-20 h-1 bg-[#D4A056] rounded-full" />
                 </div>
               </div>
             );
           })}
 
-        {/* Empty state */}
-        {!errorMsg && (!Array.isArray(enjoyTips) || enjoyTips.length === 0) && (
-          <p className="text-center text-gray-500">No tips found.</p>
-        )}
+        {!errorMsg && (!Array.isArray(enjoyTips) || enjoyTips.length === 0) ? (
+          <p className="text-center">No tips found.</p>
+        ) : null}
       </div>
     </section>
   );

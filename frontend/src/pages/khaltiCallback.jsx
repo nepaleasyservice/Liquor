@@ -19,11 +19,9 @@ export default function KhaltiCallback() {
 
     const verify = async () => {
       try {
-        // Axios response
         const res = await api.post(KHALTIPAYMENTURLS.KHALTILOOKUP, { pidx });
         const json = res?.data;
 
-        // Your backend likely returns: { success: true/false, data: {...}, message? }
         if (!json?.success) {
           console.error("Khalti lookup failed:", json);
           navigate("/payment", { replace: true });
@@ -36,13 +34,11 @@ export default function KhaltiCallback() {
         if (lookupStatus === "Completed") {
           clearCart();
 
-          // Go to payment success page
           navigate("/payment-success", {
             replace: true,
             state: {
               pidx,
               status: lookupStatus,
-              // optional if your backend sends them:
               orderId: json?.data?.purchase_order_id || json?.data?.order_id || null,
               amount: json?.data?.total_amount || null,
             },
@@ -60,9 +56,9 @@ export default function KhaltiCallback() {
   }, [params, navigate, clearCart]);
 
   return (
-    <div className="min-h-screen bg-[#0B0705] pt-32 px-6 text-white">
+    <div className="min-h-screen bg-white pt-32 px-6" style={{ color: "#222222" }}>
       <h1 className="text-3xl font-bold">Verifying Khalti payment…</h1>
-      <p className="text-gray-400 mt-3">Please don’t close this page.</p>
+      <p className="mt-3">Please don’t close this page.</p>
     </div>
   );
 }

@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useAdmin } from "../../context/AdminContext";
 
-// safe image resolver for brand
 function getBrandImg(b) {
   if (!b) return "";
   if (typeof b?.image === "string" && b.image) return b.image;
@@ -21,11 +20,10 @@ function getBrandImg(b) {
   if (typeof b?.imageURL === "string" && b.imageURL) return b.imageURL;
   if (typeof b?.logo === "string" && b.logo) return b.logo;
   if (b?.logo?.url) return b.logo.url;
-  if   (b?.logo?.secure_url) return b.logo.secure_url;
+  if (b?.logo?.secure_url) return b.logo.secure_url;
   return "";
 }
 
-// pick an icon deterministically
 const ICONS = [Crown, Beer, Wine, GlassWater, CupSoda, Martini, BadgeCheck];
 function pickIconByName(name = "") {
   let sum = 0;
@@ -63,7 +61,7 @@ export default function PopularBrands() {
   }, [normalizedBrands, selectedBrandId]);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-16 bg-white" style={{ color: "#222222" }}>
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-12">
         <h2 className="text-4xl font-extrabold tracking-wide text-[#D4A056]">
@@ -71,13 +69,14 @@ export default function PopularBrands() {
         </h2>
 
         <div className="w-full sm:w-[260px]">
-          <label className="block text-xs text-gray-400 mb-2">
+          <label className="block text-xs mb-2" style={{ color: "#222222" }}>
             Filter Brand
           </label>
           <select
             value={selectedBrandId}
             onChange={(e) => setSelectedBrandId(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-white/20"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#D4A056]"
+            style={{ color: "#222222" }}
           >
             <option value="">All Brands</option>
             {normalizedBrands.map((b) => (
@@ -89,8 +88,8 @@ export default function PopularBrands() {
         </div>
       </div>
 
-      {/* ✅ ONE ROW with visible styled scrollbar */}
-      <div className="flex gap-6 overflow-x-auto pb-4 brand-scrollbar">
+      {/* One row */}
+      <div className="flex gap-6 overflow-x-auto pb-4">
         {filtered.map((brand) => {
           const Icon = pickIconByName(brand.name);
           const img = getBrandImg(brand.raw);
@@ -99,37 +98,29 @@ export default function PopularBrands() {
             <div
               key={brand.id}
               onClick={() => navigate(`/shop?brand=${brand.id}`)}
-              className="
-                group relative flex-shrink-0 w-[220px]
-                rounded-2xl overflow-hidden cursor-pointer
-                bg-black/30 border border-[#d4a056]/20
-                hover:border-[#d4a056]/60 transition-all duration-300
-              "
+              className="group relative flex-shrink-0 w-[220px] rounded-2xl overflow-hidden cursor-pointer bg-white border border-gray-200 hover:border-[#D4A056] transition-all duration-300 shadow-sm hover:shadow-md"
             >
-              {/* Placeholder */}
-              <div className="w-full h-48 bg-black/20" />
+              <div className="w-full h-48 bg-white border-b border-gray-200">
+                {img ? (
+                  <img
+                    src={img}
+                    alt={brand.name}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                ) : (
+                  <div className="w-full h-48 grid place-items-center" style={{ color: "#222222" }}>
+                    No image
+                  </div>
+                )}
+              </div>
 
-              {/* Image */}
-              {img && (
-                <img
-                  src={img}
-                  alt={brand.name}
-                  className="
-                    absolute inset-0 w-full h-full object-cover
-                    opacity-0 group-hover:brightness-75
-                    transition-all duration-300
-                  "
-                  onLoad={(e) => (e.currentTarget.style.opacity = 1)}
-                  onError={(e) => (e.currentTarget.style.display = "none")}
-                />
-              )}
-
-              {/* Overlay */}
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center space-y-3 bg-gradient-to-b from-black/30 via-black/20 to-black/40">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-[#d4a056]/80">
-                  <Icon className="text-white w-7 h-7" />
+              <div className="p-4 flex flex-col items-center justify-center gap-3">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-r from-[#D4A056] to-[#f1d39f] shadow-sm">
+                  <Icon className="text-black w-7 h-7" />
                 </div>
-                <p className="text-center text-sm font-semibold text-white px-2">
+
+                <p className="text-center text-sm font-semibold px-2" style={{ color: "#222222" }}>
                   {brand.name}
                 </p>
               </div>
@@ -139,7 +130,7 @@ export default function PopularBrands() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center text-gray-400 mt-10">
+        <div className="text-center mt-10" style={{ color: "#222222" }}>
           No brands found.
         </div>
       )}

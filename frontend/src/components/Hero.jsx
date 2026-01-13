@@ -25,116 +25,80 @@ const slides = [
 export default function Hero() {
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
-
-  // ✅ for text transition trigger
   const [animateKey, setAnimateKey] = useState(0);
 
-  // Auto Slide
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % slides.length);
-    }, 30000);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ bump key on slide change to replay text animation
   useEffect(() => {
     setAnimateKey((k) => k + 1);
   }, [index]);
 
   return (
-    <section className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden">
-      {/* IMAGE SLIDER (crossfade using stacked images) */}
+    <section
+      className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden bg-white"
+      style={{ color: "#222222" }}
+    >
       {slides.map((s, i) => (
         <img
           key={s.image}
           src={s.image}
           alt="Hero Slide"
-          className={`absolute inset-0 w-full h-full object-cover brightness-[0.6] transition-opacity duration-1000 ease-in-out ${
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
             i === index ? "opacity-100" : "opacity-0"
           }`}
         />
       ))}
 
-      {/* GRADIENT OVERLAY */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+      {/* ✅ ONLY OPACITY CHANGED HERE */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent" />
 
-      {/* CONTENT */}
       <div className="relative h-full flex flex-col justify-center px-8 md:px-20">
-        {/* Text animation (replayed via key) */}
-        <div
-          key={animateKey}
-          className="
-            animate-[heroFadeUp_800ms_ease-out]
-          "
-        >
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl">
+        <div key={animateKey} className="animate-[heroFadeUp_800ms_ease-out]">
+          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
             {slides[index].title} <br />
             <span className="text-[#D4A056]">{slides[index].subtitle}</span>
           </h1>
 
-          <p className="mt-4 text-lg md:text-xl text-gray-200 max-w-xl md:max-w-2xl">
+          <p className="mt-4 text-lg md:text-xl max-w-xl md:max-w-2xl">
             {slides[index].desc}
           </p>
 
-          {/* BUTTONS */}
           <div className="mt-6 flex gap-4">
             <button
               onClick={() => navigate("/shop")}
-              className="
-                px-7 py-3 bg-[#D4A056] hover:bg-[#e3b568]
-                text-black text-lg font-semibold rounded-xl shadow-lg
-                transition
-                hover:scale-[1.05]
-                active:scale-[0.95]
-              "
-              style={{
-                boxShadow: "0 8px 20px rgba(212,160,86,0.35)",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 8px 20px rgba(212,160,86,0.6)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 8px 20px rgba(212,160,86,0.35)")
-              }
+              className="px-7 py-3 bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black text-lg font-semibold rounded-xl shadow-md transition hover:scale-[1.05] active:scale-[0.95]"
             >
               Shop Now
             </button>
 
             <button
               onClick={() => navigate("/products")}
-              className="
-                px-7 py-3 bg-white/10 backdrop-blur-sm
-                border border-white/30 text-white
-                text-lg font-semibold rounded-xl shadow-lg
-                transition
-                hover:scale-[1.05]
-                active:scale-[0.95]
-                hover:bg-white/20
-              "
+              className="px-7 py-3 bg-white border border-gray-200 text-lg font-semibold rounded-xl shadow-sm transition hover:scale-[1.05] active:scale-[0.95]"
+              style={{ color: "#222222" }}
             >
               Browse Categories
             </button>
           </div>
         </div>
 
-        {/* DOT INDICATORS */}
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3">
           {slides.map((_, i) => (
             <div
               key={i}
               onClick={() => setIndex(i)}
               className={`w-3 h-3 rounded-full cursor-pointer transition-all ${
-                i === index ? "bg-[#D4A056]" : "bg-white/40"
+                i === index ? "bg-[#D4A056]" : "bg-gray-400"
               }`}
             />
           ))}
         </div>
       </div>
 
-      {/* ✅ Local keyframes for text animation */}
       <style>
         {`
           @keyframes heroFadeUp {

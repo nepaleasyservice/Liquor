@@ -1,4 +1,3 @@
-// Shop.jsx (SERVER-SIDE search + category/brand/name in query + Search button)
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -24,8 +23,7 @@ function getCategoryId(p) {
 }
 
 function getCategoryName(p, categories) {
-  const direct =
-    p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
+  const direct = p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
   if (direct) return direct;
 
   const cid = getCategoryId(p);
@@ -57,7 +55,6 @@ function getPageItems(current, total, siblings = 1) {
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // ✅ URL source of truth
   const urlCategory = searchParams.get("category") || "";
   const urlBrand = searchParams.get("brand") || "";
   const urlName = searchParams.get("name") || "";
@@ -80,9 +77,7 @@ export default function Shop() {
 
   const LIMIT = SHOP_LIMIT;
 
-  // local input (applied value is urlName)
   const [searchInput, setSearchInput] = useState(urlName);
-
   const [categoryId, setCategoryId] = useState(urlCategory);
   const [brandId, setBrandId] = useState(urlBrand);
 
@@ -96,12 +91,7 @@ export default function Shop() {
   useEffect(() => setBrandId(urlBrand), [urlBrand]);
   useEffect(() => setSearchInput(urlName), [urlName]);
 
-  const updateUrlParams = (
-    nextCategoryId,
-    nextBrandId,
-    nextPage = 1,
-    nextName = ""
-  ) => {
+  const updateUrlParams = (nextCategoryId, nextBrandId, nextPage = 1, nextName = "") => {
     const nextParams = {};
     if (nextCategoryId) nextParams.category = nextCategoryId;
     if (nextBrandId) nextParams.brand = nextBrandId;
@@ -110,7 +100,6 @@ export default function Shop() {
     setSearchParams(nextParams, { replace: true });
   };
 
-  // ✅ fetch from server (category/brand/name/page)
   useEffect(() => {
     fetchShopProducts?.({
       page: urlPage,
@@ -143,9 +132,7 @@ export default function Shop() {
   const currentPage = pagination?.page ?? urlPage;
   const totalPages = pagination?.totalPages ?? 1;
 
-  const pageItems = useMemo(() => {
-    return getPageItems(currentPage, totalPages, 1);
-  }, [currentPage, totalPages]);
+  const pageItems = useMemo(() => getPageItems(currentPage, totalPages, 1), [currentPage, totalPages]);
 
   const goToPage = (p) => {
     const next = Math.min(Math.max(1, p), totalPages);
@@ -155,14 +142,12 @@ export default function Shop() {
   const showLoadingEmpty = loading && products.length === 0;
 
   return (
-    <div className="bg-[#080808] min-h-screen text-white px-6 md:px-20 pt-32 pb-14">
+    <div className="bg-white min-h-screen px-6 md:px-20 pt-32 pb-14" style={{ color: "#222222" }}>
       <div className="text-center space-y-4 mb-14 transition-all duration-700">
         <h1 className="text-5xl font-extrabold tracking-wide">
           Luxury <span className="text-[#D4A056]">Liquor</span> House
         </h1>
-        <p className="text-gray-500">
-          World-class spirits delivered to your door.
-        </p>
+        <p style={{ color: "#222222" }}>World-class spirits delivered to your door.</p>
       </div>
 
       {/* SEARCH + BUTTON */}
@@ -171,16 +156,15 @@ export default function Shop() {
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="flex-1 py-4 px-6 rounded-full bg-white/5 border border-white/10 backdrop-blur-lg focus:ring-2 focus:ring-[#D4A056] text-white placeholder-gray-400 outline-none"
+            className="flex-1 py-4 px-6 rounded-full bg-white border border-gray-200 focus:ring-2 focus:ring-[#D4A056] outline-none"
             placeholder="Search premium bottles…"
+            style={{ color: "#222222" }}
           />
 
           {(searchInput.trim() || urlCategory || urlBrand) && (
             <button
-              onClick={() => {
-                updateUrlParams(urlCategory, urlBrand, 1, searchInput.trim());
-              }}
-              className="shrink-0 py-4 px-6 rounded-full bg-[#D4A056] text-black font-semibold text-sm transition active:scale-95"
+              onClick={() => updateUrlParams(urlCategory, urlBrand, 1, searchInput.trim())}
+              className="shrink-0 py-4 px-6 rounded-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black font-semibold text-sm transition active:scale-95 shadow-sm hover:shadow-md"
             >
               Search
             </button>
@@ -191,7 +175,9 @@ export default function Shop() {
       {/* FILTERS */}
       <div className="max-w-5xl mx-auto mb-14 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-gray-400 mb-2">Category</label>
+          <label className="block text-xs mb-2" style={{ color: "#222222" }}>
+            Category
+          </label>
           <select
             value={categoryId}
             onChange={(e) => {
@@ -199,11 +185,12 @@ export default function Shop() {
               setCategoryId(next);
               updateUrlParams(next, brandId, 1, urlName);
             }}
-            className="w-full rounded-full bg-white/5 border border-white/10 px-5 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-[#D4A056]"
+            className="w-full rounded-full bg-white border border-gray-200 px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-[#D4A056]"
+            style={{ color: "#222222" }}
           >
             <option value="">All Categories</option>
             {categoryOptions.map((c) => (
-              <option className="text-gray-900" key={c.id} value={c.id}>
+              <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
@@ -211,7 +198,9 @@ export default function Shop() {
         </div>
 
         <div>
-          <label className="block text-xs text-gray-400 mb-2">Brand</label>
+          <label className="block text-xs mb-2" style={{ color: "#222222" }}>
+            Brand
+          </label>
           <select
             value={brandId}
             onChange={(e) => {
@@ -219,11 +208,12 @@ export default function Shop() {
               setBrandId(next);
               updateUrlParams(categoryId, next, 1, urlName);
             }}
-            className="w-full rounded-full bg-white/5 border border-white/10 px-5 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-[#D4A056]"
+            className="w-full rounded-full bg-white border border-gray-200 px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-[#D4A056]"
+            style={{ color: "#222222" }}
           >
             <option value="">All Brands</option>
             {brandOptions.map((b) => (
-              <option className="text-gray-900" key={b.id} value={b.id}>
+              <option key={b.id} value={b.id}>
                 {b.name}
               </option>
             ))}
@@ -232,7 +222,9 @@ export default function Shop() {
       </div>
 
       {showLoadingEmpty ? (
-        <p className="text-center mt-16 text-gray-500">Loading products…</p>
+        <p className="text-center mt-16" style={{ color: "#222222" }}>
+          Loading products…
+        </p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
@@ -244,27 +236,22 @@ export default function Shop() {
               return (
                 <div
                   key={pid}
-                  className="relative rounded-3xl overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/10 shadow-lg group transition-transform duration-300 hover:-translate-y-1"
+                  className="relative rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm group transition-transform duration-300 hover:-translate-y-1 hover:shadow-md"
                 >
                   <Link to={`/product/${pid}`}>
-                    <div className="absolute top-4 left-4 bg-black/70 text-[#D4A056] px-3 py-1 rounded-full text-xs border border-[#D4A056]/30">
+                    <div className="absolute top-4 left-4 bg-white text-[#B8852E] px-3 py-1 rounded-full text-xs border border-[#D4A056]">
                       {categoryName}
                     </div>
 
-                    <div className="absolute top-4 right-4 bg-black/70 text-[#D4A056] px-3 py-1 rounded-full text-sm">
+                    <div className="absolute top-4 right-4 bg-white text-[#B8852E] px-3 py-1 rounded-full text-sm border border-gray-200">
                       Rs. {Number(item?.price ?? 0).toLocaleString()}
                     </div>
 
-                    <div className="h-[220px] flex items-center justify-center">
+                    <div className="h-[220px] flex items-center justify-center bg-white">
                       {img ? (
-                        <img
-                          src={img}
-                          alt={item?.name ?? "product"}
-                          className="object-contain h-full"
-                          loading="lazy"
-                        />
+                        <img src={img} alt={item?.name ?? "product"} className="object-contain h-full" loading="lazy" />
                       ) : (
-                        <div className="h-full w-full grid place-items-center text-gray-500">
+                        <div className="h-full w-full grid place-items-center" style={{ color: "#222222" }}>
                           No image
                         </div>
                       )}
@@ -272,7 +259,7 @@ export default function Shop() {
                   </Link>
 
                   <div className="p-4 text-center">
-                    <h3 className="text-lg font-semibold break-words">
+                    <h3 className="text-lg font-semibold break-words" style={{ color: "#222222" }}>
                       {item?.name}
                     </h3>
 
@@ -284,7 +271,7 @@ export default function Shop() {
                           image: img || item?.image,
                         })
                       }
-                      className="mt-4 px-6 py-2 rounded-full bg-[#D4A056] text-black font-semibold text-sm transition active:scale-95"
+                      className="mt-4 px-6 py-2 rounded-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black font-semibold text-sm transition active:scale-95 shadow-sm hover:shadow-md"
                     >
                       Add to Cart
                     </button>
@@ -295,7 +282,7 @@ export default function Shop() {
           </div>
 
           {!loading && products.length === 0 && (
-            <p className="text-center mt-16 text-gray-500">
+            <p className="text-center mt-16" style={{ color: "#222222" }}>
               No premium products found.
             </p>
           )}
@@ -306,7 +293,12 @@ export default function Shop() {
               <button
                 disabled={!pagination?.hasPrevPage || currentPage <= 1}
                 onClick={() => goToPage(currentPage - 1)}
-                className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition"
+                className={`px-4 py-2 rounded-xl border border-gray-200 bg-white transition ${
+                  !pagination?.hasPrevPage || currentPage <= 1
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "hover:border-[#D4A056]"
+                }`}
+                style={{ color: "#222222" }}
               >
                 Prev
               </button>
@@ -314,7 +306,7 @@ export default function Shop() {
               {pageItems.map((it, idx) => {
                 if (it === "...") {
                   return (
-                    <span key={`dots-${idx}`} className="px-2 text-gray-400">
+                    <span key={`dots-${idx}`} className="px-2" style={{ color: "#222222" }}>
                       ...
                     </span>
                   );
@@ -327,11 +319,12 @@ export default function Shop() {
                   <button
                     key={pnum}
                     onClick={() => goToPage(pnum)}
-                    className={`w-10 h-10 rounded-xl border border-white/10 transition ${
+                    className={`w-10 h-10 rounded-xl border transition ${
                       active
-                        ? "bg-[#D4A056] text-black font-bold"
-                        : "bg-white/5 text-white hover:bg-white/10"
+                        ? "border-[#D4A056] bg-white text-[#B8852E] font-bold"
+                        : "border-gray-200 bg-white hover:border-[#D4A056]"
                     }`}
+                    style={{ color: active ? undefined : "#222222" }}
                   >
                     {pnum}
                   </button>
@@ -341,18 +334,20 @@ export default function Shop() {
               <button
                 disabled={!pagination?.hasNextPage}
                 onClick={() => goToPage(currentPage + 1)}
-                className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition"
+                className={`px-4 py-2 rounded-xl border border-gray-200 bg-white transition ${
+                  !pagination?.hasNextPage ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "hover:border-[#D4A056]"
+                }`}
+                style={{ color: "#222222" }}
               >
                 Next
               </button>
             </div>
 
-            <p className="text-center text-xs text-gray-500">
-              Page <span className="text-white">{currentPage}</span> of{" "}
-              <span className="text-white">{totalPages}</span> • Total{" "}
-              <span className="text-white">{pagination?.total ?? 0}</span>{" "}
-              products • Limit{" "}
-              <span className="text-white">{pagination?.limit ?? LIMIT}</span>
+            <p className="text-center text-xs" style={{ color: "#222222" }}>
+              Page <span className="font-semibold">{currentPage}</span> of{" "}
+              <span className="font-semibold">{totalPages}</span> • Total{" "}
+              <span className="font-semibold">{pagination?.total ?? 0}</span> products • Limit{" "}
+              <span className="font-semibold">{pagination?.limit ?? LIMIT}</span>
             </p>
           </div>
         </>

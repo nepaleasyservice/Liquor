@@ -1,12 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  CreditCard,
-  Wallet,
-  Truck,
-  MapPin,
-  ShieldCheck,
-  Gift,
-} from "lucide-react";
+import { Truck, ShieldCheck, Gift } from "lucide-react";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
@@ -30,20 +23,18 @@ export default function Checkout() {
     postalCode: "",
   });
 
-  // const [paymentMethod, setPaymentMethod] = useState("CARD"); // "CARD" | "COD"
   const [error, setError] = useState("");
 
   const subtotal = useMemo(
     () => items.reduce((total, item) => total + item.price * item.qty, 0),
     [items]
   );
+
   const deliveryFee = items.length ? 150 : 0;
   const total = subtotal + deliveryFee;
 
   const isBillingValid = useMemo(() => {
-    return (
-      billing.fullName.trim() && billing.email.trim() && billing.phone.trim()
-    );
+    return billing.fullName.trim() && billing.email.trim() && billing.phone.trim();
   }, [billing]);
 
   const isAddressValid = useMemo(() => {
@@ -62,55 +53,39 @@ export default function Checkout() {
   const handleBillingChange = (e) => {
     const { name, value } = e.target;
     setBilling((prev) => ({ ...prev, [name]: value }));
-
     if (error) setError("");
   };
 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddress((prev) => ({ ...prev, [name]: value }));
-
     if (error) setError("");
   };
 
   const submitCheckout = (e) => {
     e.preventDefault();
 
-    if (!items.length) {
-      setError("Your cart is empty.");
-      return;
-    }
-
-    if (!isBillingValid) {
-      setError(
-        "Please complete all required Billing Details (Name, Email, Phone)."
-      );
-      return;
-    }
-
-    if (!isAddressValid) {
-      setError("Please complete all required Delivery Address fields.");
-      return;
-    }
+    if (!items.length) return setError("Your cart is empty.");
+    if (!isBillingValid)
+      return setError("Please complete all required Billing Details (Name, Email, Phone).");
+    if (!isAddressValid)
+      return setError("Please complete all required Delivery Address fields.");
 
     setError("");
 
     navigate("/payment", {
-      state: {
-        billing,
-        address,
-        // paymentMethod,
-        subtotal,
-        deliveryFee,
-        total,
-      },
+      state: { billing, address, subtotal, deliveryFee, total },
     });
   };
+
+  const inputClass =
+    "bg-white border border-gray-300 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-[#D4A056] transition";
 
   return (
     <form
       onSubmit={submitCheckout}
-      className="min-h-screen bg-[#0B0705] pt-28 pb-20 px-4 md:px-8 text-white"
+      className="min-h-screen bg-white pt-28 pb-20 px-4 md:px-8"
+      style={{ color: "#222222" }}
     >
       <motion.h1
         initial={{ opacity: 0, y: 16 }}
@@ -123,18 +98,15 @@ export default function Checkout() {
       </motion.h1>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* LEFT SIDE */}
         <div className="lg:col-span-2 space-y-10">
-          {/* BILLING */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0 * 0.12 }}
+            transition={{ duration: 0.4 }}
             viewport={{ once: true }}
-            className="bg-[#100907]/90 border border-[#2E1E13] rounded-2xl p-6 md:p-8
-            backdrop-blur-xl shadow-[0_15px_45px_rgba(0,0,0,0.6)]"
+            className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm"
           >
-            <div className="flex items-center gap-3 mb-6 text-[#F5DA9C] text-xl font-bold">
+            <div className="flex items-center gap-3 mb-6 text-[#B8852E] text-xl font-bold">
               <span className="text-[#D4A056]">
                 <Gift />
               </span>
@@ -146,64 +118,55 @@ export default function Checkout() {
                 name="fullName"
                 value={billing.fullName}
                 onChange={handleBillingChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Full Name"
                 required
+                style={{ color: "#222222" }}
               />
-
               <input
                 name="email"
                 type="email"
                 value={billing.email}
                 onChange={handleBillingChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Email Address"
                 required
+                style={{ color: "#222222" }}
               />
-
               <input
                 name="phone"
                 value={billing.phone}
                 onChange={handleBillingChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Phone Number"
                 required
+                style={{ color: "#222222" }}
               />
-
               <input
                 name="altPhone"
                 value={billing.altPhone}
                 onChange={handleBillingChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Alternate Phone (optional)"
+                style={{ color: "#222222" }}
               />
             </div>
 
             {!isBillingValid && (
-              <p className="mt-4 text-xs text-yellow-300">
+              <p className="mt-4 text-xs" style={{ color: "#222222" }}>
                 * Name, Email and Phone are required.
               </p>
             )}
           </motion.div>
 
-          {/* DELIVERY ADDRESS */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 1 * 0.12 }}
+            transition={{ duration: 0.4, delay: 0.12 }}
             viewport={{ once: true }}
-            className="bg-[#100907]/90 border border-[#2E1E13] rounded-2xl p-6 md:p-8
-            backdrop-blur-xl shadow-[0_15px_45px_rgba(0,0,0,0.6)]"
+            className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm"
           >
-            <div className="flex items-center gap-3 mb-6 text-[#F5DA9C] text-xl font-bold">
+            <div className="flex items-center gap-3 mb-6 text-[#B8852E] text-xl font-bold">
               <span className="text-[#D4A056]">
                 <Truck />
               </span>
@@ -215,132 +178,62 @@ export default function Checkout() {
                 name="street"
                 value={address.street}
                 onChange={handleAddressChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Street Address"
                 required
+                style={{ color: "#222222" }}
               />
-
               <input
                 name="city"
                 value={address.city}
                 onChange={handleAddressChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="City"
                 required
+                style={{ color: "#222222" }}
               />
-
               <input
                 name="province"
                 value={address.province}
                 onChange={handleAddressChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Province / State"
                 required
+                style={{ color: "#222222" }}
               />
-
               <input
                 name="postalCode"
                 value={address.postalCode}
                 onChange={handleAddressChange}
-                className="bg-[#120B08] border border-[#3B2618] rounded-xl px-5 py-3
-                text-white placeholder-[#C2A46D] focus:outline-none focus:ring-2
-                focus:ring-[#D4A056]/40 transition"
+                className={inputClass}
                 placeholder="Postal Code"
                 required
+                style={{ color: "#222222" }}
               />
             </div>
 
             {!isAddressValid && (
-              <p className="mt-4 text-xs text-yellow-300">
+              <p className="mt-4 text-xs" style={{ color: "#222222" }}>
                 * All delivery address fields are required.
               </p>
             )}
           </motion.div>
-
-          {/* PAYMENT METHOD */}
-          {/* <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 2 * 0.12 }}
-            viewport={{ once: true }}
-            className="bg-[#100907]/90 border border-[#2E1E13] rounded-2xl p-6 md:p-8
-            backdrop-blur-xl shadow-[0_15px_45px_rgba(0,0,0,0.6)]"
-          >
-            <div className="flex items-center gap-3 mb-6 text-[#F5DA9C] text-xl font-bold">
-              <span className="text-[#D4A056]">
-                <Wallet />
-              </span>
-              Payment Method
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <label
-                className="flex items-center gap-4 bg-[#120B08] border border-[#3B2618]
-                rounded-xl p-4 cursor-pointer hover:border-[#D4A056]
-                hover:bg-[#1A120F] transition"
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  className="hidden"
-                  checked={paymentMethod === "CARD"}
-                  onChange={() => setPaymentMethod("CARD")}
-                />
-                <span className="text-[#D4A056]">
-                  <CreditCard />
-                </span>
-                <span className="font-semibold tracking-wide">
-                  Card Payment
-                </span>
-              </label>
-
-              <label
-                className="flex items-center gap-4 bg-[#120B08] border border-[#3B2618]
-                rounded-xl p-4 cursor-pointer hover:border-[#D4A056]
-                hover:bg-[#1A120F] transition"
-              >
-                <input
-                  type="radio"
-                  name="payment"
-                  className="hidden"
-                  checked={paymentMethod === "COD"}
-                  onChange={() => setPaymentMethod("COD")}
-                />
-                <span className="text-[#D4A056]">
-                  <MapPin />
-                </span>
-                <span className="font-semibold tracking-wide">
-                  Cash on Delivery
-                </span>
-              </label>
-            </div>
-          </motion.div> */}
         </div>
 
-        {/* RIGHT SIDE */}
         <motion.div
           initial={{ opacity: 0, x: 18 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-[#100907] border border-[#3B2618] rounded-3xl p-7 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+          className="bg-white border border-gray-200 rounded-3xl p-7 shadow-sm"
         >
-          <h2
-            className="text-2xl font-bold mb-6 flex items-center gap-2
-            text-[#F5DA9C]"
-          >
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2" style={{ color: "#222222" }}>
             <ShieldCheck className="text-[#D4A056]" /> Order Summary
           </h2>
 
           {items.length === 0 ? (
-            <p className="text-center text-gray-500">Your cart is empty</p>
+            <p className="text-center">Your cart is empty</p>
           ) : (
-            <div className="space-y-3 text-sm text-[#EAD7AA]">
+            <div className="space-y-3 text-sm" style={{ color: "#222222" }}>
               {items.map((item) => (
                 <div key={item.id || item._id} className="flex justify-between">
                   <span>
@@ -352,47 +245,41 @@ export default function Checkout() {
             </div>
           )}
 
-          <hr className="my-5 opacity-30" />
+          <hr className="my-5 border-gray-200" />
 
           <div className="space-y-2 text-md">
-            <div className="flex justify-between text-gray-400">
+            <div className="flex justify-between">
               <span>Subtotal</span>
               <span>Rs. {subtotal.toLocaleString()}</span>
             </div>
 
-            <div className="flex justify-between text-gray-400">
+            <div className="flex justify-between">
               <span>Delivery Fee</span>
               <span>Rs. {deliveryFee}</span>
             </div>
 
-            <div
-              className="flex justify-between text-xl font-black
-              text-[#F5DA9C] border-t border-[#3B2618] pt-3 mt-3"
-            >
+            <div className="flex justify-between text-xl font-black border-t border-gray-200 pt-3 mt-3">
               <span>Total</span>
               <span>Rs. {total.toLocaleString()}</span>
             </div>
           </div>
 
-          {error && (
-            <p className="text-sm text-red-400 text-center mt-4">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600 text-center mt-4">{error}</p>}
 
-          {/* BUTTON */}
           <motion.button
             type="submit"
             disabled={!canProceed}
-            whileHover={{ scale: canProceed ? 1.05 : 1 }}
-            className="w-full py-4 mt-4 rounded-xl font-bold text-lg text-black 
-              bg-gradient-to-r from-[#D4A056] via-[#f1d39f] to-[#D4A056] 
-              bg-[length:200%_200%] animate-goldShimmer 
-              shadow-lg shadow-[#D4A056]/40 
-              disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-500"
+            whileHover={{ scale: canProceed ? 1.03 : 1 }}
+            className={`w-full py-4 mt-4 rounded-xl font-bold text-lg shadow-md transition-all duration-300 ${
+              !canProceed
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-[#D4A056] via-[#f1d39f] to-[#D4A056] text-black hover:shadow-lg"
+            }`}
           >
             Complete Purchase
           </motion.button>
 
-          <p className="text-xs text-center text-gray-500 mt-4">
+          <p className="text-xs text-center mt-4" style={{ color: "#222222" }}>
             Encrypted Transaction • Zero Data Stored • Verified Checkout
           </p>
         </motion.div>

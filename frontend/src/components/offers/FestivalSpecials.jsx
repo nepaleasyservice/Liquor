@@ -6,7 +6,7 @@ export default function FestivalSpecials() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6">
+    <div className="max-w-7xl mx-auto px-6 bg-white" style={{ color: "#222222" }}>
       <h2 className="text-4xl font-extrabold tracking-wide text-[#D4A056] mb-16 text-center">
         Festival Specials
       </h2>
@@ -16,24 +16,32 @@ export default function FestivalSpecials() {
           <div
             key={i}
             className="
-              rounded-xl 
-              overflow-hidden 
+              rounded-xl
+              overflow-hidden
               shadow-lg
-              border 
-              border-transparent 
-              bg-[#1a1a1a]
-              transition-all 
-              duration-300 
-              hover:scale-105 
-              hover:border-[#D4A056] 
-              hover:shadow-[0_0_15px_#D4A056]
+              border
+              border-gray-200
+              bg-white
+              transition-all
+              duration-300
+              hover:scale-105
+              hover:border-[#D4A056]
             "
+            style={{ color: "#222222" }}
           >
-            <img src={item.img} className="w-full h-48 object-cover" />
+            <img
+              src={item.img}
+              alt={item.name}
+              className="w-full h-48 object-cover border-b border-gray-200 bg-white"
+            />
 
             <div className="p-5">
-              <h3 className="text-xl font-semibold">{item.name}</h3>
-              <p className="text-gray-300 mt-2">{item.desc}</p>
+              <h3 className="text-xl font-semibold" style={{ color: "#222222" }}>
+                {item.name}
+              </h3>
+              <p className="mt-2" style={{ color: "#222222" }}>
+                {item.desc}
+              </p>
             </div>
           </div>
         ))}

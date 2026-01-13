@@ -3,12 +3,8 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import api from "../services/api";
-import {
-  KHALTIPAYMENTURLS,
-  STOREDETAILS,
-  PAYMENTMETHOD,
-} from "../api/constants";
-import { useState } from "react";
+import { KHALTIPAYMENTURLS, STOREDETAILS, PAYMENTMETHOD } from "../api/constants";
+import { useEffect } from "react";
 
 export default function PaymentGateway() {
   const navigate = useNavigate();
@@ -18,7 +14,7 @@ export default function PaymentGateway() {
   const checkoutState = location.state || {};
   const { billing, address } = checkoutState;
 
-  useState(() => {
+  useEffect(() => {
     if (!billing || !address) navigate("/checkout", { replace: true });
   }, [billing, address, navigate]);
 
@@ -46,12 +42,8 @@ export default function PaymentGateway() {
     };
 
     try {
-      const orderRes = await api.post(
-        KHALTIPAYMENTURLS.getOrdersUrl,
-        orderPayload
-      );
+      const orderRes = await api.post(KHALTIPAYMENTURLS.getOrdersUrl, orderPayload);
       const orderJson = orderRes.data;
-
 
       if (!orderJson?.success) {
         alert(orderJson?.message || "Failed to create order.");
@@ -78,11 +70,7 @@ export default function PaymentGateway() {
         })),
       };
 
-      const initRes = await api.post(
-        KHALTIPAYMENTURLS.initiateKhaltiUrl,
-        initPayload
-      );
-
+      const initRes = await api.post(KHALTIPAYMENTURLS.initiateKhaltiUrl, initPayload);
       const initJson = initRes.data;
 
       if (!initJson?.success) {
@@ -103,136 +91,85 @@ export default function PaymentGateway() {
     navigate("/complete");
   };
 
+  const canPay = cart.length > 0;
+
   return (
-    <div className="min-h-screen bg-[#0B0705] pt-32 pb-16 px-6 text-white">
+    <div className="min-h-screen bg-white pt-32 pb-16 px-6" style={{ color: "#222222" }}>
       <h1
         className="text-center text-5xl font-extrabold bg-gradient-to-r
-        from-[#D4A056] via-[#f1d39f] to-[#D4A056] bg-clip-text text-transparent
-        drop-shadow-[0_0_20px_rgba(212,160,86,0.4)]"
+        from-[#D4A056] via-[#f1d39f] to-[#D4A056] bg-clip-text text-transparent"
       >
         Payment Gateway
       </h1>
 
       <div className="max-w-3xl mx-auto mt-14 space-y-12">
-        {/* KHALTI PAYMENT (NEW) */}
+        {/* KHALTI PAYMENT */}
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="bg-[#1A0E0B]/70 backdrop-blur-xl border border-[#D4A056]/20 
-            rounded-3xl p-8 shadow-[0_0_40px_rgba(212,160,86,0.25)] hover:shadow-[0_0_50px_rgba(212,160,86,0.4)] transition-all"
+          className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all"
         >
           <div className="flex gap-4 items-center mb-4">
             <CreditCard className="text-[#D4A056]" size={28} />
-            <h2 className="text-2xl font-bold text-[#f1d39f]">
-              Pay with Khalti
-            </h2>
+            <h2 className="text-2xl font-bold text-[#B8852E]">Pay with Khalti</h2>
           </div>
 
-          <p className="text-gray-400 mb-6">
+          <p className="mb-6" style={{ color: "#222222" }}>
             Total:{" "}
-            <span className="text-[#f1d39f] font-bold">
+            <span className="font-bold" style={{ color: "#222222" }}>
               Rs. {total.toLocaleString()}
             </span>
           </p>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            disabled={!cart.length}
+            whileHover={{ scale: canPay ? 1.03 : 1 }}
+            disabled={!canPay}
             onClick={payWithKhalti}
-            className="w-full py-4 rounded-xl font-bold text-lg 
-              bg-gradient-to-r from-[#D4A056] via-[#f1d39f] to-[#D4A056] 
-              bg-[length:200%_200%] animate-goldShimmer text-black shadow-lg 
-              shadow-[#D4A056]/50 transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            className={`w-full py-4 rounded-xl font-bold text-lg
+              bg-gradient-to-r from-[#D4A056] via-[#f1d39f] to-[#D4A056]
+              text-black shadow-md hover:shadow-lg transition-all duration-300
+              ${!canPay ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
           >
             Pay with Khalti
           </motion.button>
         </motion.div>
-
-        {/* CARD PAYMENT (keep UI, but this is not real unless you integrate a gateway) */}
-        {/* <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="bg-[#1A0E0B]/70 backdrop-blur-xl border border-[#D4A056]/20 
-            rounded-3xl p-8 shadow-[0_0_40px_rgba(212,160,86,0.25)] hover:shadow-[0_0_50px_rgba(212,160,86,0.4)] transition-all"
-        >
-          <div className="flex gap-4 items-center mb-6">
-            <CreditCard className="text-[#D4A056]" size={28} />
-            <h2 className="text-2xl font-bold text-[#f1d39f]">Card Payment</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-5">
-            <input className="checkout-input" placeholder="Card Holder Name" />
-            <input className="checkout-input" placeholder="Card Number" />
-            <input className="checkout-input" placeholder="MM/YY" />
-            <input className="checkout-input" placeholder="CVV" />
-          </div>
-        </motion.div> */}
 
         {/* CASH ON DELIVERY */}
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="bg-[#1A0E0B]/70 backdrop-blur-xl border border-[#D4A056]/20 
-            rounded-3xl p-8 shadow-[0_0_40px_rgba(212,160,86,0.25)] hover:shadow-[0_0_50px_rgba(212,160,86,0.4)] transition-all"
+          className="bg-white border border-gray-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all"
         >
           <div className="flex gap-4 items-center mb-4">
             <Wallet className="text-[#D4A056]" size={28} />
-            <h2 className="text-2xl font-bold text-[#f1d39f]">
-              Cash on Delivery
-            </h2>
+            <h2 className="text-2xl font-bold text-[#B8852E]">Cash on Delivery</h2>
           </div>
 
-          <p className="text-gray-400 flex gap-2 items-center">
+          <p className="flex gap-2 items-center" style={{ color: "#222222" }}>
             <MapPin className="text-[#D4A056]" />
             Pay after receiving your order at your location.
           </p>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            disabled={!cart.length}
+            whileHover={{ scale: canPay ? 1.03 : 1 }}
+            disabled={!canPay}
             onClick={confirmCOD}
-            className="w-full mt-6 py-4 rounded-xl font-bold text-lg 
-              bg-gradient-to-r from-[#D4A056] via-[#f1d39f] to-[#D4A056] 
-              bg-[length:200%_200%] animate-goldShimmer text-black shadow-lg 
-              shadow-[#D4A056]/50 transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            className={`w-full mt-6 py-4 rounded-xl font-bold text-lg
+              bg-gradient-to-r from-[#D4A056] via-[#f1d39f] to-[#D4A056]
+              text-black shadow-md hover:shadow-lg transition-all duration-300
+              ${!canPay ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
           >
             Confirm COD Order
           </motion.button>
         </motion.div>
 
-        <p className="flex items-center gap-2 text-center justify-center text-gray-400 text-sm mt-2">
+        <p className="flex items-center gap-2 text-center justify-center text-sm mt-2" style={{ color: "#222222" }}>
           <Shield className="text-[#D4A056]" />
           Secure encrypted payment system
         </p>
       </div>
-
-      <style>
-        {`
-          @keyframes goldShimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-          .animate-goldShimmer { animation: goldShimmer 3s linear infinite; }
-
-          .checkout-input {
-            background: #0E0907;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #3B2519;
-            outline: none;
-            color: white;
-            transition: 0.3s;
-          }
-          .checkout-input:focus {
-            border-color: #D4A056;
-            background: #150F0D;
-          }
-        `}
-      </style>
     </div>
   );
 }

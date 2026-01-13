@@ -13,7 +13,6 @@ import {
 import { useCart } from "../context/CartContext";
 import { useAdmin } from "../context/AdminContext";
 
-// ✅ safe image resolver (supports Cloudinary: image.url)
 function getImgSrc(p) {
   if (!p) return "";
   if (typeof p?.image === "string" && p.image) return p.image;
@@ -25,7 +24,8 @@ function getImgSrc(p) {
 }
 
 function getCategoryName(p, categories) {
-  const direct = p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
+  const direct =
+    p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
   if (direct) return direct;
 
   const cid =
@@ -65,7 +65,6 @@ export default function SingleProduct() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  // ✅ use the single-product API instead of fetching all products
   const { categories = [], fetchCategories, fetchProductById } = useAdmin();
 
   const [product, setProduct] = useState(null);
@@ -80,7 +79,6 @@ export default function SingleProduct() {
       setProduct(res?.product ?? null);
       setLoading(false);
     })();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -99,19 +97,27 @@ export default function SingleProduct() {
     "No description available.";
 
   const abv =
-    product?.abv ?? product?.alcoholPercentage ?? product?.alcohol ?? null;
+    product?.abv ??
+    product?.alcoholPercentage ??
+    product?.alcohol ??
+    null;
+
   const volumeMl = product?.volumeMl ?? product?.volume ?? product?.ml ?? null;
 
   const isActive = product?.isActive !== false;
 
   if (!loading && !product) {
     return (
-      <div className="min-h-screen bg-[#080808] text-white px-6 md:px-20 py-24">
+      <div
+        className="min-h-screen bg-white px-6 md:px-20 py-24"
+        style={{ color: "#222222" }}
+      >
         <div className="max-w-3xl mx-auto text-center">
           <div className="text-3xl font-bold">Product Not Found 😢</div>
           <button
             onClick={() => navigate(-1)}
-            className="mt-8 rounded-full bg-white/10 px-6 py-3 hover:bg-white/15 transition"
+            className="mt-8 rounded-full bg-white px-6 py-3 transition border border-gray-200 hover:border-[#D4A056]"
+            style={{ color: "#222222" }}
           >
             Go Back
           </button>
@@ -121,23 +127,17 @@ export default function SingleProduct() {
   }
 
   return (
-    <section className="bg-[#080808] text-white mt-20">
-      {/* background glow */}
-      <div className="fixed inset-0 -z-10 bg-[#080808]" />
-      <div className="fixed inset-0 -z-10 opacity-60 bg-[radial-gradient(ellipse_at_top,_rgba(212,160,86,0.18),_transparent_55%)]" />
+    <section className="bg-white mt-20" style={{ color: "#222222" }}>
+      {/* solid background only */}
+      <div className="fixed inset-0 -z-10 bg-white" />
 
       <div className="px-4 sm:px-6 md:px-10 lg:px-16 py-6">
         {/* top actions */}
         <div className="max-w-6xl mx-auto mb-4 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="
-              inline-flex items-center gap-2 rounded-full
-              bg-white/5 border border-white/10
-              px-4 py-2 text-sm
-              hover:bg-white/10 hover:border-white/15
-              transition
-            "
+            className="inline-flex items-center gap-2 rounded-full bg-white border border-gray-200 px-4 py-2 text-sm hover:border-[#D4A056] transition"
+            style={{ color: "#222222" }}
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -145,13 +145,13 @@ export default function SingleProduct() {
 
           <div className="flex items-center gap-2">
             {!isActive ? (
-              <span className="rounded-full px-3 py-1.5 text-xs border border-red-500/30 bg-red-500/10 text-red-200">
+              <span className="rounded-full px-3 py-1.5 text-xs border border-red-400 bg-white text-red-700">
                 Unavailable
               </span>
             ) : null}
 
             {product?.isFeatured ? (
-              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs border border-[#D4A056]/30 bg-[#D4A056]/10 text-[#D4A056]">
+              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs border border-[#D4A056] bg-white text-[#B8852E]">
                 <Star className="h-3.5 w-3.5" />
                 Featured
               </span>
@@ -159,41 +159,32 @@ export default function SingleProduct() {
           </div>
         </div>
 
-        {/* ✅ items-stretch + both cards h-full makes equal height on md+ */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 items-stretch">
+        {/* ✅ key change: items-start so left doesn't stretch */}
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 items-start">
           {/* LEFT */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.32 }}
-            className="
-              h-full
-              rounded-3xl border border-white/10
-              bg-gradient-to-b from-white/[0.05] to-white/[0.02]
-              p-4 shadow-[0_12px_50px_rgba(0,0,0,0.55)]
-            "
+            // ✅ removed h-full so it won't grow too tall
+            className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm"
           >
-            {/* ✅ Fill height of left card so it matches right card */}
+            {/* ✅ Responsive, fits screen, shows full image smaller */}
             <div
               className="
-                relative w-full h-full min-h-[260px] md:min-h-0
-                rounded-2xl
-                bg-gradient-to-b from-black/35 to-black/20
-                border border-white/10
-                overflow-hidden
+                relative w-full rounded-2xl bg-white border border-gray-200 overflow-hidden
                 flex items-center justify-center
+                h-[260px] sm:h-[320px] md:h-[380px] lg:h-[420px]
               "
             >
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(212,160,86,0.18),_transparent_45%)]" />
-
               {categoryName ? (
-                <div className="absolute top-3 left-3 rounded-full bg-black/70 px-3 py-1 text-[11px] font-semibold text-[#D4A056] border border-[#D4A056]/40 backdrop-blur">
+                <div className="absolute top-3 left-3 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#B8852E] border border-[#D4A056]">
                   {categoryName}
                 </div>
               ) : null}
 
               {brandName ? (
-                <div className="absolute top-3 right-3 rounded-full bg-black/70 px-3 py-1 text-[11px] font-semibold text-gray-100 border border-white/10 backdrop-blur">
+                <div className="absolute top-3 right-3 rounded-full bg-white px-3 py-1 text-[11px] font-semibold border border-gray-200">
                   {brandName}
                 </div>
               ) : null}
@@ -202,11 +193,12 @@ export default function SingleProduct() {
                 <img
                   src={img}
                   alt={product?.name ?? "product"}
-                  className="w-full h-full object-contain p-4 drop-shadow-[0_25px_50px_rgba(0,0,0,0.55)]"
+                  // ✅ show full image (no crop) but smaller + responsive
+                  className="max-h-full max-w-full object-contain p-4"
                   loading="lazy"
                 />
               ) : (
-                <div className="text-gray-500">No image</div>
+                <div style={{ color: "#222222" }}>No image</div>
               )}
             </div>
           </motion.div>
@@ -216,22 +208,17 @@ export default function SingleProduct() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.32 }}
-            className="
-              h-full
-              rounded-3xl border border-white/10
-              bg-gradient-to-b from-white/[0.05] to-white/[0.02]
-              p-5 shadow-[0_12px_50px_rgba(0,0,0,0.55)]
-            "
+            className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm"
           >
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide text-[#D4A056]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide text-[#B8852E]">
               {loading ? "Loading..." : product?.name}
             </h1>
 
-            <div className="mt-2 text-sm text-gray-300">
+            <div className="mt-2 text-sm">
               {categoryName ? (
                 <span>
-                  <span className="text-gray-400">Category:</span>{" "}
-                  <span className="text-white font-semibold">
+                  <span style={{ color: "#222222" }}>Category:</span>{" "}
+                  <span className="font-semibold" style={{ color: "#222222" }}>
                     {categoryName}
                   </span>
                 </span>
@@ -239,60 +226,79 @@ export default function SingleProduct() {
 
               {brandName ? (
                 <span className="ml-3">
-                  <span className="text-gray-500">•</span>{" "}
-                  <span className="text-gray-400">Brand:</span>{" "}
-                  <span className="text-white font-semibold">{brandName}</span>
+                  <span style={{ color: "#222222" }}>•</span>{" "}
+                  <span style={{ color: "#222222" }}>Brand:</span>{" "}
+                  <span className="font-semibold" style={{ color: "#222222" }}>
+                    {brandName}
+                  </span>
                 </span>
               ) : null}
             </div>
 
             {/* specs */}
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-2xl bg-black/20 border border-white/10 p-3 flex items-center gap-2">
+              <div className="rounded-2xl bg-white border border-gray-200 p-3 flex items-center gap-2">
                 <Layers className="h-4 w-4 text-[#D4A056]" />
                 <div className="min-w-0">
-                  <div className="text-[11px] text-gray-400">Sub</div>
-                  <div className="mt-0.5 text-sm text-white truncate">
+                  <div className="text-[11px]" style={{ color: "#222222" }}>
+                    Sub
+                  </div>
+                  <div
+                    className="mt-0.5 text-sm truncate"
+                    style={{ color: "#222222" }}
+                  >
                     {subCategoryName || "—"}
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-black/20 border border-white/10 p-3 flex items-center gap-2">
+              <div className="rounded-2xl bg-white border border-gray-200 p-3 flex items-center gap-2">
                 <GlassWater className="h-4 w-4 text-[#D4A056]" />
                 <div className="min-w-0">
-                  <div className="text-[11px] text-gray-400">Volume</div>
-                  <div className="mt-0.5 text-sm text-white truncate">
+                  <div className="text-[11px]" style={{ color: "#222222" }}>
+                    Volume
+                  </div>
+                  <div
+                    className="mt-0.5 text-sm truncate"
+                    style={{ color: "#222222" }}
+                  >
                     {volumeMl != null ? `${volumeMl} ml` : "—"}
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-black/20 border border-white/10 p-3 flex items-center gap-2">
+              <div className="rounded-2xl bg-white border border-gray-200 p-3 flex items-center gap-2">
                 <Droplets className="h-4 w-4 text-[#D4A056]" />
                 <div className="min-w-0">
-                  <div className="text-[11px] text-gray-400">ABV</div>
-                  <div className="mt-0.5 text-sm text-white truncate">
+                  <div className="text-[11px]" style={{ color: "#222222" }}>
+                    ABV
+                  </div>
+                  <div
+                    className="mt-0.5 text-sm truncate"
+                    style={{ color: "#222222" }}
+                  >
                     {abv != null ? `${abv}%` : "—"}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 text-gray-300 leading-relaxed">
+            <div className="mt-4 leading-relaxed" style={{ color: "#222222" }}>
               <p className="line-clamp-4 sm:line-clamp-5">{description}</p>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
-              <div className="text-[11px] text-gray-400">Price</div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-[#D4A056]">
+            <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-4">
+              <div className="text-[11px]" style={{ color: "#222222" }}>
+                Price
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-[#B8852E]">
                 Rs. {Number(product?.price ?? 0).toLocaleString()}
               </div>
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isActive && !loading && product ? 1.02 : 1 }}
+              whileTap={{ scale: isActive && !loading && product ? 0.98 : 1 }}
               disabled={!isActive || loading || !product}
               onClick={() =>
                 addToCart({
@@ -301,13 +307,14 @@ export default function SingleProduct() {
                   image: img || product?.image,
                 })
               }
-              className="
-                mt-10 w-full inline-flex items-center justify-center gap-2
-                rounded-full bg-[#D4A056] text-black font-semibold py-2.5
-                hover:brightness-110 transition
-                disabled:opacity-50 disabled:cursor-not-allowed
-                shadow-[0_10px_30px_rgba(212,160,86,0.18)]
-              "
+              className={`mt-10 w-full inline-flex items-center justify-center gap-2
+                rounded-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f]
+                text-black font-semibold py-3 transition hover:shadow-md
+                ${
+                  !isActive || loading || !product
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : ""
+                }`}
             >
               <ShoppingCart className="h-4 w-4" />
               Add to Cart
