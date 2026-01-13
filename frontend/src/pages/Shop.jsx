@@ -23,7 +23,8 @@ function getCategoryId(p) {
 }
 
 function getCategoryName(p, categories) {
-  const direct = p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
+  const direct =
+    p?.category?.name ?? p?.category?.title ?? p?.categoryName ?? "";
   if (direct) return direct;
 
   const cid = getCategoryId(p);
@@ -50,6 +51,27 @@ function getPageItems(current, total, siblings = 1) {
   items.push(total);
 
   return items;
+}
+
+/* ---------------- Skeleton Card ---------------- */
+function ProductCardSkeleton() {
+  return (
+    <div className="relative rounded-3xl overflow-hidden bg-white border border-gray-200 shadow-sm animate-pulse">
+      <div className="absolute top-4 left-4 h-6 w-20 rounded-full bg-gray-200" />
+      <div className="absolute top-4 right-4 h-6 w-24 rounded-full bg-gray-200" />
+
+      <div className="h-[220px] flex items-center justify-center bg-white">
+        <div className="h-40 w-40 rounded-2xl bg-gray-200" />
+      </div>
+
+      <div className="p-4 text-center">
+        <div className="h-4 w-3/4 mx-auto bg-gray-200 rounded" />
+        <div className="h-4 w-1/2 mx-auto bg-gray-200 rounded mt-2" />
+
+        <div className="mt-4 h-9 w-32 mx-auto rounded-full bg-gray-200" />
+      </div>
+    </div>
+  );
 }
 
 export default function Shop() {
@@ -91,7 +113,12 @@ export default function Shop() {
   useEffect(() => setBrandId(urlBrand), [urlBrand]);
   useEffect(() => setSearchInput(urlName), [urlName]);
 
-  const updateUrlParams = (nextCategoryId, nextBrandId, nextPage = 1, nextName = "") => {
+  const updateUrlParams = (
+    nextCategoryId,
+    nextBrandId,
+    nextPage = 1,
+    nextName = ""
+  ) => {
     const nextParams = {};
     if (nextCategoryId) nextParams.category = nextCategoryId;
     if (nextBrandId) nextParams.brand = nextBrandId;
@@ -132,7 +159,10 @@ export default function Shop() {
   const currentPage = pagination?.page ?? urlPage;
   const totalPages = pagination?.totalPages ?? 1;
 
-  const pageItems = useMemo(() => getPageItems(currentPage, totalPages, 1), [currentPage, totalPages]);
+  const pageItems = useMemo(
+    () => getPageItems(currentPage, totalPages, 1),
+    [currentPage, totalPages]
+  );
 
   const goToPage = (p) => {
     const next = Math.min(Math.max(1, p), totalPages);
@@ -142,12 +172,17 @@ export default function Shop() {
   const showLoadingEmpty = loading && products.length === 0;
 
   return (
-    <div className="bg-white min-h-screen px-6 md:px-20 pt-32 pb-14" style={{ color: "#222222" }}>
+    <div
+      className="bg-white min-h-screen px-6 md:px-20 pt-32 pb-14"
+      style={{ color: "#222222" }}
+    >
       <div className="text-center space-y-4 mb-14 transition-all duration-700">
         <h1 className="text-5xl font-extrabold tracking-wide">
           Luxury <span className="text-[#D4A056]">Liquor</span> House
         </h1>
-        <p style={{ color: "#222222" }}>World-class spirits delivered to your door.</p>
+        <p style={{ color: "#222222" }}>
+          World-class spirits delivered to your door.
+        </p>
       </div>
 
       {/* SEARCH + BUTTON */}
@@ -163,7 +198,9 @@ export default function Shop() {
 
           {(searchInput.trim() || urlCategory || urlBrand) && (
             <button
-              onClick={() => updateUrlParams(urlCategory, urlBrand, 1, searchInput.trim())}
+              onClick={() =>
+                updateUrlParams(urlCategory, urlBrand, 1, searchInput.trim())
+              }
               className="shrink-0 py-4 px-6 rounded-full bg-gradient-to-r from-[#D4A056] to-[#f1d39f] text-black font-semibold text-sm transition active:scale-95 shadow-sm hover:shadow-md"
             >
               Search
@@ -221,10 +258,13 @@ export default function Shop() {
         </div>
       </div>
 
+      {/* ✅ SKELETON GRID (only when first load or empty list) */}
       {showLoadingEmpty ? (
-        <p className="text-center mt-16" style={{ color: "#222222" }}>
-          Loading products…
-        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+          {Array.from({ length: LIMIT }).map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
@@ -249,9 +289,17 @@ export default function Shop() {
 
                     <div className="h-[220px] flex items-center justify-center bg-white">
                       {img ? (
-                        <img src={img} alt={item?.name ?? "product"} className="object-contain h-full" loading="lazy" />
+                        <img
+                          src={img}
+                          alt={item?.name ?? "product"}
+                          className="object-contain h-full"
+                          loading="lazy"
+                        />
                       ) : (
-                        <div className="h-full w-full grid place-items-center" style={{ color: "#222222" }}>
+                        <div
+                          className="h-full w-full grid place-items-center"
+                          style={{ color: "#222222" }}
+                        >
                           No image
                         </div>
                       )}
@@ -259,7 +307,10 @@ export default function Shop() {
                   </Link>
 
                   <div className="p-4 text-center">
-                    <h3 className="text-lg font-semibold break-words" style={{ color: "#222222" }}>
+                    <h3
+                      className="text-lg font-semibold break-words"
+                      style={{ color: "#222222" }}
+                    >
                       {item?.name}
                     </h3>
 
@@ -279,6 +330,13 @@ export default function Shop() {
                 </div>
               );
             })}
+
+            {/* ✅ Optional: when changing filters/pages, show a few skeletons at the end */}
+            {loading && products.length > 0
+              ? Array.from({ length: Math.min(4, LIMIT) }).map((_, i) => (
+                  <ProductCardSkeleton key={`tail-skel-${i}`} />
+                ))
+              : null}
           </div>
 
           {!loading && products.length === 0 && (
@@ -306,7 +364,11 @@ export default function Shop() {
               {pageItems.map((it, idx) => {
                 if (it === "...") {
                   return (
-                    <span key={`dots-${idx}`} className="px-2" style={{ color: "#222222" }}>
+                    <span
+                      key={`dots-${idx}`}
+                      className="px-2"
+                      style={{ color: "#222222" }}
+                    >
                       ...
                     </span>
                   );
@@ -335,7 +397,9 @@ export default function Shop() {
                 disabled={!pagination?.hasNextPage}
                 onClick={() => goToPage(currentPage + 1)}
                 className={`px-4 py-2 rounded-xl border border-gray-200 bg-white transition ${
-                  !pagination?.hasNextPage ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "hover:border-[#D4A056]"
+                  !pagination?.hasNextPage
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "hover:border-[#D4A056]"
                 }`}
                 style={{ color: "#222222" }}
               >
@@ -346,8 +410,8 @@ export default function Shop() {
             <p className="text-center text-xs" style={{ color: "#222222" }}>
               Page <span className="font-semibold">{currentPage}</span> of{" "}
               <span className="font-semibold">{totalPages}</span> • Total{" "}
-              <span className="font-semibold">{pagination?.total ?? 0}</span> products • Limit{" "}
-              <span className="font-semibold">{pagination?.limit ?? LIMIT}</span>
+              <span className="font-semibold">{pagination?.total ?? 0}</span>{" "}
+              products
             </p>
           </div>
         </>
