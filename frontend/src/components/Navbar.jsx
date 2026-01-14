@@ -198,15 +198,6 @@ export default function Navbar() {
                   <button
                     onClick={() => {
                       setOpen(false);
-                      navigate("/orders");
-                    }}
-                    className="text-left transition-all duration-300 hover:text-[#B8852E]"
-                  >
-                    Orders
-                  </button>
-                  <button
-                    onClick={() => {
-                      setOpen(false);
                       handleLogout();
                     }}
                     className="text-left transition-all duration-300"
