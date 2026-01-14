@@ -12,20 +12,12 @@ function getEnjoyImage(enjoy) {
   return "";
 }
 
-// ✅ normalize API responses so state always gets the real enjoy object
 function normalizeEnjoy(payload) {
   if (!payload) return payload;
-
-  // examples backend can return:
-  // { success:true, enjoyData: [ {...} ] }
-  // { success:true, enjoy: {...} }
-  // {...enjoy}
   if (payload.enjoy) return payload.enjoy;
-
   if (payload.enjoyData) {
     return Array.isArray(payload.enjoyData) ? payload.enjoyData[0] : payload.enjoyData;
   }
-
   return payload;
 }
 
@@ -39,7 +31,6 @@ export default function Enjoy() {
   const [showModal, setShowModal] = useState(false);
   const [selectedEnjoy, setSelectedEnjoy] = useState(null);
 
-  // ✅ saving states (disable buttons while saving)
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -60,7 +51,7 @@ export default function Enjoy() {
   };
 
   const closeModal = () => {
-    if (isBusy) return; // ✅ prevent closing while saving
+    if (isBusy) return;
     setShowModal(false);
     setSelectedEnjoy(null);
     setMode(null);
@@ -120,7 +111,7 @@ export default function Enjoy() {
 
       setEnjoys((prev) => [newEnjoy, ...prev]);
 
-      // ✅ reset & close (closeModal blocks while busy, so close manually here)
+      // reset & close
       setShowModal(false);
       setSelectedEnjoy(null);
       setMode(null);
@@ -150,15 +141,17 @@ export default function Enjoy() {
   const rows = useMemo(() => enjoys || [], [enjoys]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-6">
+    // ✅ same as Orders: prevent page horizontal overflow
+    <div className="min-h-screen bg-black text-white overflow-x-hidden p-4 md:p-6">
       <div className="mx-auto max-w-7xl flex flex-col gap-6 md:flex-row">
         <AdminSidebar />
 
-        <main className="flex-1 space-y-6">
+        {/* ✅ same as Orders: allow shrink in flex layout */}
+        <main className="flex-1 min-w-0 space-y-6">
           {/* Header */}
           <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 p-6 shadow-[0_0_30px_rgba(255,255,255,0.06)]">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
                   Enjoy Management
                 </h1>
@@ -170,7 +163,7 @@ export default function Enjoy() {
               <button
                 onClick={() => openModal(MODE.CREATE)}
                 disabled={isBusy}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold transition
+                className={`w-full sm:w-auto rounded-xl px-4 py-2 text-sm font-semibold transition
                   ${
                     isBusy
                       ? "bg-white/20 text-black/50 cursor-not-allowed"
@@ -191,14 +184,15 @@ export default function Enjoy() {
 
           {/* Table */}
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_0_30px_rgba(0,0,0,0.35)]">
+            {/* ✅ scroll inside container */}
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="w-full min-w-[1000px] text-left text-sm text-gray-200">
                 <thead className="bg-white/5 text-gray-300">
                   <tr>
-                    <th className="px-6 py-4 font-medium w-[12%]">Image</th>
-                    <th className="px-6 py-4 font-medium w-[18%]">Name</th>
-                    <th className="px-6 py-4 font-medium w-[40%]">Description</th>
-                    <th className="px-6 py-4 font-medium text-right w-[30%]">
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Image</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Name</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Description</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap text-right">
                       Actions
                     </th>
                   </tr>
@@ -210,7 +204,7 @@ export default function Enjoy() {
 
                     return (
                       <tr key={enjoy._id} className="hover:bg-white/5 transition">
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="h-12 w-12 overflow-hidden rounded-xl border border-white/10 bg-black/40 ring-1 ring-white/5">
                             {imgSrc ? (
                               <img
@@ -227,17 +221,20 @@ export default function Enjoy() {
                           </div>
                         </td>
 
-                        <td className="px-6 py-4 font-semibold text-white">
-                          {enjoy.name || "—"}
+                        <td className="px-6 py-4 min-w-0">
+                          <div className="font-semibold text-white truncate max-w-[220px]">
+                            {enjoy.name || "—"}
+                          </div>
                         </td>
 
-                        <td className="px-6 py-4">
+                        {/* ✅ truncate so it never forces width */}
+                        <td className="px-6 py-4 min-w-0">
                           <span className="inline-flex max-w-[520px] truncate rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
                             {enjoy.description || "—"}
                           </span>
                         </td>
 
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => openModal(MODE.EDIT, enjoy)}

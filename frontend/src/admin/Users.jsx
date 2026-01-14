@@ -25,7 +25,6 @@ function ConfirmModal({
       role="dialog"
       aria-modal="true"
       onMouseDown={(e) => {
-        // click outside closes
         if (e.target === e.currentTarget) onClose?.();
       }}
     >
@@ -35,9 +34,7 @@ function ConfirmModal({
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-white">{title}</h2>
-            {message ? (
-              <p className="mt-1 text-sm text-gray-300">{message}</p>
-            ) : null}
+            {message ? <p className="mt-1 text-sm text-gray-300">{message}</p> : null}
           </div>
 
           <button
@@ -91,14 +88,11 @@ export default function Users() {
     USERS_DEFAULT_LIMIT,
   } = useAdmin();
 
-  // ✅ Search input (server-side)
   const [name, setName] = useState("");
 
-  // ✅ Confirm modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingUser, setPendingUser] = useState(null); // { _id, name, isDisabled }
+  const [pendingUser, setPendingUser] = useState(null);
 
-  // ✅ Initial load (no filter)
   useEffect(() => {
     fetchUsers({ page: 1, limit: USERS_DEFAULT_LIMIT, name: "" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,41 +101,35 @@ export default function Users() {
   const page = usersPagination?.page ?? 1;
   const totalPages = usersPagination?.totalPages ?? 1;
 
-  // ✅ Server-side search trigger
   const doSearch = () => {
     fetchUsers({ page: 1, limit: USERS_DEFAULT_LIMIT, name: name.trim() });
   };
 
-  // ✅ Clear search trigger
   const clearSearch = () => {
     setName("");
     fetchUsers({ page: 1, limit: USERS_DEFAULT_LIMIT, name: "" });
   };
 
-  // ✅ Pagination keeps server filter automatically (AdminContext remembers last search)
   const goToPage = (nextPage) => {
-    fetchUsers({ page: nextPage, limit: USERS_DEFAULT_LIMIT }); // name will be taken from context userQuery
+    fetchUsers({ page: nextPage, limit: USERS_DEFAULT_LIMIT });
   };
 
   const rows = useMemo(() => users || [], [users]);
 
-  // ✅ Intercept disable action: confirm only when disabling
   const requestToggle = (u) => {
     const disabled = !!u?.isDisabled;
 
     if (!disabled) {
-      // currently Active -> disabling is "danger" => confirm
       setPendingUser({ _id: u?._id, name: u?.name, isDisabled: disabled });
       setConfirmOpen(true);
       return;
     }
 
-    // currently Disabled -> enabling: no confirm (keeps everything else same)
     toggleDisableUser(u?._id);
   };
 
   const closeConfirm = () => {
-    if (usersLoading) return; // optional: prevent closing while loading
+    if (usersLoading) return;
     setConfirmOpen(false);
     setPendingUser(null);
   };
@@ -153,11 +141,14 @@ export default function Users() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    // ✅ prevents the whole page from horizontally overflowing (white space)
+    // ✅ pl-[2px] if you want sidebar ~2px from left
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pt-6 pr-6 pb-6 pl-[2px]">
       <div className="mx-auto max-w-7xl flex flex-col gap-6 md:flex-row">
         <AdminSidebar />
 
-        <main className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6">
+        {/* ✅ min-w-0 allows main to shrink instead of forcing overflow */}
+        <main className="flex-1 min-w-0 rounded-2xl border border-white/10 bg-white/5 p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-2xl font-bold">Users</h1>
@@ -166,17 +157,18 @@ export default function Users() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="relative">
+            {/* ✅ WRAP on small screens so it doesn't overflow */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+              <div className="relative w-full sm:w-auto">
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") doSearch(); // ✅ Enter triggers server search
+                    if (e.key === "Enter") doSearch();
                   }}
                   placeholder="Search by name..."
-                  className="w-72 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm outline-none
-                             focus:border-white/30"
+                  // ✅ responsive width instead of fixed w-72 always
+                  className="w-full sm:w-72 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-sm outline-none focus:border-white/30"
                 />
 
                 {name && (
@@ -191,23 +183,25 @@ export default function Users() {
                 )}
               </div>
 
-              <button
-                onClick={doSearch}
-                disabled={usersLoading}
-                className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/15 disabled:opacity-60"
-                type="button"
-              >
-                Search
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={doSearch}
+                  disabled={usersLoading}
+                  className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/15 disabled:opacity-60"
+                  type="button"
+                >
+                  Search
+                </button>
 
-              <button
-                onClick={() => fetchUsers({ page: 1, limit: USERS_DEFAULT_LIMIT })}
-                disabled={usersLoading}
-                className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/15 disabled:opacity-60"
-                type="button"
-              >
-                Refresh
-              </button>
+                <button
+                  onClick={() => fetchUsers({ page: 1, limit: USERS_DEFAULT_LIMIT })}
+                  disabled={usersLoading}
+                  className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/15 disabled:opacity-60"
+                  type="button"
+                >
+                  Refresh
+                </button>
+              </div>
             </div>
           </div>
 
@@ -218,8 +212,9 @@ export default function Users() {
           )}
 
           <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
+            {/* ✅ table can scroll horizontally INSIDE without breaking the page */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-sm min-w-[720px]">
                 <thead className="bg-white/5 text-gray-300">
                   <tr>
                     <th className="px-4 py-3 font-medium">Name</th>
@@ -263,10 +258,16 @@ export default function Users() {
                       return (
                         <tr key={u?._id} className="hover:bg-white/5">
                           <td className="px-4 py-3">
-                            <div className="font-medium text-white">{u?.name || "—"}</div>
+                            {/* ✅ prevents long names from widening layout */}
+                            <div className="font-medium text-white truncate max-w-[240px]">
+                              {u?.name || "—"}
+                            </div>
                           </td>
 
-                          <td className="px-4 py-3 text-gray-200">{u?.email || "—"}</td>
+                          <td className="px-4 py-3 text-gray-200">
+                            {/* ✅ prevents long emails from widening layout */}
+                            <div className="truncate max-w-[320px]">{u?.email || "—"}</div>
+                          </td>
 
                           <td className="px-4 py-3">
                             <span
@@ -281,13 +282,13 @@ export default function Users() {
                             </span>
                           </td>
 
-                          <td className="px-4 py-3 text-gray-300">
+                          <td className="px-4 py-3 text-gray-300 whitespace-nowrap">
                             {u?.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
                           </td>
 
-                          <td className="px-4 py-3 text-right">
+                          <td className="px-4 py-3 text-right whitespace-nowrap">
                             <button
-                              onClick={() => requestToggle(u)} // ✅ confirm before disabling
+                              onClick={() => requestToggle(u)}
                               disabled={usersLoading}
                               className={classNames(
                                 "rounded-xl px-4 py-2 text-sm border disabled:opacity-60",
@@ -309,7 +310,7 @@ export default function Users() {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between gap-3 bg-white/5 px-4 py-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white/5 px-4 py-3">
               <div className="text-sm text-gray-300">
                 Page <span className="font-medium text-white">{page}</span> of{" "}
                 <span className="font-medium text-white">{totalPages}</span>
@@ -341,7 +342,6 @@ export default function Users() {
         </main>
       </div>
 
-      {/* ✅ Confirmation Modal (only for disabling) */}
       <ConfirmModal
         open={confirmOpen}
         title="Disable user?"

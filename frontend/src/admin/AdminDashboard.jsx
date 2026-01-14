@@ -4,10 +4,16 @@ import api from "../services/api.js";
 
 function StatCard({ label, value, sub }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-5">
+    // ✅ min-w-0 allows children to shrink; prevents overflow
+    <div className="min-w-0 rounded-2xl border border-white/10 bg-black/30 p-5">
       <p className="text-xs uppercase tracking-wider text-gray-400">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-      {sub ? <p className="mt-1 text-xs text-gray-400">{sub}</p> : null}
+
+      {/* ✅ truncate prevents long text (Top Product) from pushing layout */}
+      <p className="mt-2 text-2xl font-semibold text-white truncate">{value}</p>
+
+      {sub ? (
+        <p className="mt-1 text-xs text-gray-400 truncate">{sub}</p>
+      ) : null}
     </div>
   );
 }
@@ -78,33 +84,12 @@ export default function AdminDashboard() {
     return dateStr > todayStr ? todayStr : dateStr;
   };
 
-  // ✅ init: last day (yesterday) → today  AND auto fetch once
-  useEffect(() => {
-    const today = new Date();
-    const end = formatDateYYYYMMDD(today);
-
-    const startDt = new Date();
-    startDt.setDate(startDt.getDate() - 1);
-    const start = formatDateYYYYMMDD(startDt);
-
-    const s = clampToToday(start);
-    const e = clampToToday(end);
-
-    setStartDate(s);
-    setEndDate(e);
-
-    // auto fetch for default range
-    fetchDashboard({ s, e });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchDashboard = async ({ s = startDate, e = endDate } = {}) => {
     if (!s || !e) {
       setError("Please select both Start and End dates.");
       return;
     }
 
-    // ✅ prevent future dates
     s = clampToToday(s);
     e = clampToToday(e);
 
@@ -126,7 +111,25 @@ export default function AdminDashboard() {
     }
   };
 
-  // productStats = [{ _id, name, totalQty, totalRevenue }, ...]
+  // ✅ init: yesterday → today AND auto fetch once
+  useEffect(() => {
+    const today = new Date();
+    const end = formatDateYYYYMMDD(today);
+
+    const startDt = new Date();
+    startDt.setDate(startDt.getDate() - 1);
+    const start = formatDateYYYYMMDD(startDt);
+
+    const s = clampToToday(start);
+    const e = clampToToday(end);
+
+    setStartDate(s);
+    setEndDate(e);
+
+    fetchDashboard({ s, e });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const productStats = useMemo(() => {
     const list = data?.productStats || [];
     return [...list].sort((a, b) => Number(b?.totalRevenue || 0) - Number(a?.totalRevenue || 0));
@@ -145,7 +148,6 @@ export default function AdminDashboard() {
   const topProduct = productStats?.[0];
 
   const setPreset = (days) => {
-    // keeps END = today, START = today-(days-1)
     const today = new Date();
     const end = formatDateYYYYMMDD(today);
 
@@ -170,11 +172,14 @@ export default function AdminDashboard() {
   const canSearch = !!startDate && !!endDate && !loading;
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
-      <div className="mx-auto max-w-7xl flex flex-col gap-6 md:flex-row">
+    // ✅ overflow-x-hidden removes white space caused by horizontal overflow
+    // ✅ pl-[2px] makes sidebar start 2px from left edge
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pt-3 pr-3 pb-3 pl-[2px]">
+      {/* keep centered content if you want max width; remove mx-auto if you want full width */}
+      <div className="mx-auto max-w-7xl flex flex-col gap-4 md:flex-row">
         <AdminSidebar />
 
-        <main className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6">
+        <main className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-6 min-w-0">
           {/* Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -182,17 +187,18 @@ export default function AdminDashboard() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-end">
+            {/* ✅ flex-wrap prevents overflow on small screens */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-end">
               {/* Date Fields */}
-              <div className="flex items-end gap-3">
-                <div className="w-[190px]">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="w-full sm:w-[190px]">
                   <label className="block text-[11px] text-gray-400 mb-1">Start Date</label>
                   <div className="relative">
                     <input
                       ref={startRef}
                       type="date"
                       value={startDate}
-                      max={todayStr} // ✅ cannot select > today
+                      max={todayStr}
                       onChange={(e) => setStartDate(clampToToday(e.target.value))}
                       className="h-9 w-full rounded-xl border border-white/10 bg-black/40 pl-3 pr-10 text-sm outline-none focus:border-white/30"
                     />
@@ -207,14 +213,14 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="w-[190px]">
+                <div className="w-full sm:w-[190px]">
                   <label className="block text-[11px] text-gray-400 mb-1">End Date</label>
                   <div className="relative">
                     <input
                       ref={endRef}
                       type="date"
                       value={endDate}
-                      max={todayStr} // ✅ cannot select > today
+                      max={todayStr}
                       onChange={(e) => setEndDate(clampToToday(e.target.value))}
                       className="h-9 w-full rounded-xl border border-white/10 bg-black/40 pl-3 pr-10 text-sm outline-none focus:border-white/30"
                     />
@@ -240,9 +246,9 @@ export default function AdminDashboard() {
               </div>
 
               {/* Presets + Refresh */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
-                  onClick={() => setPreset(2)} // yesterday -> today
+                  onClick={() => setPreset(2)}
                   className="h-9 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-gray-200 hover:bg-white/10"
                 >
                   Last 2 days
@@ -289,19 +295,15 @@ export default function AdminDashboard() {
                   value={`Rs. ${formatMoney(totalRevenue)}`}
                   sub="Sum of top products revenue"
                 />
-                <StatCard
-                  label="Total Items Sold"
-                  value={formatMoney(totalQty)}
-                  sub="Sum of quantities"
-                />
+                <StatCard label="Total Items Sold" value={formatMoney(totalQty)} sub="Sum of quantities" />
                 <StatCard
                   label="Top Product"
                   value={topProduct?.name ? topProduct.name : "—"}
                   sub={
                     topProduct
                       ? `Rs. ${formatMoney(topProduct.totalRevenue)} • Qty ${formatMoney(
-                        topProduct.totalQty
-                      )}`
+                          topProduct.totalQty
+                        )}`
                       : "No data"
                   }
                 />
@@ -318,9 +320,7 @@ export default function AdminDashboard() {
                   ({startDate || "—"} → {endDate || "—"})
                 </span>
               </div>
-              <div className="text-xs text-gray-400">
-                {loading ? "Loading..." : `Rows: ${productStats.length}`}
-              </div>
+              <div className="text-xs text-gray-400">{loading ? "Loading..." : `Rows: ${productStats.length}`}</div>
             </div>
 
             <div className="overflow-x-auto">
@@ -358,12 +358,13 @@ export default function AdminDashboard() {
                     productStats.map((p) => (
                       <tr key={p?._id || p?.id || p?.name} className="hover:bg-white/5">
                         <td className="px-4 py-3">
-                          <div className="font-medium text-white">{p?.name || "—"}</div>
+                          {/* ✅ prevent long names from causing overflow */}
+                          <div className="font-medium text-white truncate max-w-[520px]">
+                            {p?.name || "—"}
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-gray-200">{formatMoney(p?.totalQty)}</td>
-                        <td className="px-4 py-3 text-right text-gray-200">
-                          Rs. {formatMoney(p?.totalRevenue)}
-                        </td>
+                        <td className="px-4 py-3 text-right text-gray-200">Rs. {formatMoney(p?.totalRevenue)}</td>
                       </tr>
                     ))
                   )}

@@ -100,20 +100,6 @@ export default function PopularBrands() {
               onClick={() => navigate(`/shop?brand=${brand.id}`)}
               className="group relative flex-shrink-0 w-[220px] rounded-2xl overflow-hidden cursor-pointer bg-white border border-gray-200 hover:border-[#D4A056] transition-all duration-300 shadow-sm hover:shadow-md"
             >
-              <div className="w-full h-48 bg-white border-b border-gray-200">
-                {img ? (
-                  <img
-                    src={img}
-                    alt={brand.name}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
-                  />
-                ) : (
-                  <div className="w-full h-48 grid place-items-center" style={{ color: "#222222" }}>
-                    No image
-                  </div>
-                )}
-              </div>
 
               <div className="p-4 flex flex-col items-center justify-center gap-3">
                 <div className="w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-r from-[#D4A056] to-[#f1d39f] shadow-sm">
